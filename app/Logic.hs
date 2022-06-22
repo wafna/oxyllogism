@@ -42,7 +42,11 @@ evaluate s v = case s of
     And p q -> (evaluate p v) && (evaluate q v)
     Or p q -> (evaluate p v) || (evaluate q v)
     If p q -> (not $ evaluate p v) || (evaluate q v)
-    Iff p q -> (not $ evaluate p v) || (evaluate q v)
+    Iff p q -> 
+        let p' = evaluate p v
+            q' = evaluate q v
+        in
+        (p' && q') || (not p' && not q')
 
 -- Find all atoms in a sentence.
 atoms :: Sentence -> Set String
@@ -53,6 +57,7 @@ atoms s = case s of
     And p q -> (atoms p) `Set.union` (atoms q)
     Or p q -> (atoms p) `Set.union` (atoms q)
     If p q -> (atoms p) `Set.union` (atoms q)
+    Iff p q -> (atoms p) `Set.union` (atoms q)
 
 substitute :: Sentence -> String -> Sentence -> Either String Sentence
 substitute source target substitution =
@@ -65,9 +70,10 @@ substitute source target substitution =
                 then substitution
                 else source
             Not p -> Not $ subs p
-            And p q -> And (subs p) (subs q)
-            Or p q -> Or (subs p) (subs q)
-            If p q -> If (subs p) (subs q)
+            And p q -> (subs p) ∧ (subs q)
+            Or p q -> (subs p) ∨ (subs q)
+            If p q -> (subs p) ⊃ (subs q)
+            Iff p q -> (subs p) ≡ (subs q)
     in
     if Set.null overlap
         then Right $ subs source
@@ -79,6 +85,28 @@ modusPonens conditional antecedent = case conditional of
     Or p q -> if (neg antecedent == p) then Just q else Nothing
     _ -> Nothing
 
--- modusTollens :: Sentence -> Sentence -> Maybe Sentence
--- modusTollens conditional consequent = case conditional of
---     If p q -> if (q == neg antecedent)
+modusTollens :: Sentence -> Sentence -> Maybe Sentence
+modusTollens conditional consequent = case conditional of
+    If (Not p) (Not q) -> if (q == consequent) then Just p else Nothing
+    If p q -> if (q == neg consequent) then Just $ neg p else Nothing
+    Or (Not p) q -> if (q == neg consequent) then Just p else Nothing
+    Or p (Not q) -> if (q == consequent) then Just p else Nothing
+    _ -> Nothing
+
+modusTollensPonens :: Sentence -> Sentence -> Maybe Sentence
+modusTollensPonens disjunction denial = case denial of
+    Not p -> case disjunction of
+        Or x y -> if (p == x) then Just y else if (p == y) then Just x else Nothing
+        _ -> Nothing
+
+
+addition :: Sentence -> Sentence -> Sentence
+addition p q = p ∨ q
+
+simplification :: Sentence -> Sentence -> Maybe Sentence
+simplification conjunction element = case conjunction of 
+    Or p q -> if (p == element) then Just q else if (q == element) then Just p else Nothing
+    _ -> Nothing
+
+adjunction :: Sentence -> Sentence -> Sentence
+adjunction p q = p ∧ q
