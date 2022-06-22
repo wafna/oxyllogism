@@ -54,10 +54,12 @@ atoms s = case s of
     Const _ -> Set.empty
     Prop name -> Set.fromList [name]
     Not p -> atoms p
-    And p q -> (atoms p) `Set.union` (atoms q)
-    Or p q -> (atoms p) `Set.union` (atoms q)
-    If p q -> (atoms p) `Set.union` (atoms q)
-    Iff p q -> (atoms p) `Set.union` (atoms q)
+    And p q -> both p q
+    Or p q -> both p q
+    If p q -> both p q
+    Iff p q -> both p q
+    where
+    both p q = (atoms p) `Set.union` (atoms q)
 
 substitute :: Sentence -> String -> Sentence -> Either String Sentence
 substitute source target substitution =
