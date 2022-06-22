@@ -6,7 +6,7 @@ Fun with logic.
 
 Install [GHCup](https://www.haskell.org/ghcup/).
 
-I had to install gcc and make, as well, on a fairly fresh XUbuntu.
+I had to install `gcc` and `make`, as well, on a fairly fresh XUbuntu.
 Also required was 
 
     sudo apt-get install libgmp3-dev
