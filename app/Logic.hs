@@ -13,6 +13,7 @@ data Sentence
     | Or Sentence Sentence
     | If Sentence Sentence
     | Iff Sentence Sentence
+    | Xor Sentence Sentence
     deriving (Eq, Show, Read)
 
 -- Can't use `not` or `negate`.
@@ -24,6 +25,7 @@ neg = Not
 (∨) = Or
 (⊃) = If
 (≡) = Iff
+(≢) = Xor
 
 -- Analagous to arithmetic.
 infixl 8  ≡
@@ -47,6 +49,11 @@ evaluate s v = case s of
             q' = evaluate q v
         in
         (p' && q') || (not p' && not q')
+    Xor p q -> 
+        let p' = evaluate p v
+            q' = evaluate q v
+        in
+        (not p' && q') || (p' && not q')
 
 -- Find all atoms in a sentence.
 atoms :: Sentence -> Set String
@@ -58,6 +65,7 @@ atoms s = case s of
     Or p q -> both p q
     If p q -> both p q
     Iff p q -> both p q
+    Xor p q -> both p q
     where
     both p q = (atoms p) `Set.union` (atoms q)
 
@@ -76,6 +84,7 @@ substitute source target substitution =
             Or p q -> (subs p) ∨ (subs q)
             If p q -> (subs p) ⊃ (subs q)
             Iff p q -> (subs p) ≡ (subs q)
+            Xor p q -> (subs p) ≢ (subs q)
     in
     if Set.null overlap
         then Right $ subs source
@@ -112,3 +121,13 @@ simplification conjunction element = case conjunction of
 
 adjunction :: Sentence -> Sentence -> Sentence
 adjunction p q = p ∧ q
+
+invert :: Sentence -> Sentence
+invert s = case s of
+    Not p -> p
+    Const b -> Const $ not b
+    Or p q -> And (neg p) (neg q)
+    And p q -> Or (neg p) (neg q)
+    If p q -> And p (neg q)
+    Iff p q -> Xor p q
+    Xor p q -> Iff p q
