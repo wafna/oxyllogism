@@ -10,6 +10,7 @@ data Sentence
     | Not Sentence
     | And Sentence Sentence
     | Or Sentence Sentence
+    | If Sentence Sentence
     deriving (Eq, Show, Read)
 
 type Valuation = Map String Bool
@@ -20,6 +21,7 @@ evaluate s v = case s of
     Not p -> not $ evaluate p v
     And p q -> (evaluate p v) && (evaluate q v)
     Or p q -> (evaluate p v) || (evaluate q v)
+    If p q -> (not $ evaluate p v) || (evaluate q v)
 
 atoms :: Sentence -> Set String
 atoms s = case s of
@@ -27,6 +29,7 @@ atoms s = case s of
     Not p -> atoms p
     And p q -> (atoms p) `Set.union` (atoms q)
     Or p q -> (atoms p) `Set.union` (atoms q)
+    If p q -> (atoms p) `Set.union` (atoms q)
 
 neg :: Sentence -> Sentence
 neg = Not
@@ -37,17 +40,24 @@ neg = Not
 (@|) :: Sentence -> Sentence -> Sentence
 (@|) = Or
 
+(@>) :: Sentence -> Sentence -> Sentence
+(@>) p q = Or (Not p) q
+
 -- Analagous to arithmetic.
 infixl 7  @&
-infixl 6  @|
+infixl 6  @|, @>
 
 main :: IO ()
 main = 
+    let
+        p = Prop "P"
+        q = Prop "Q"
+    in
     do
     putStrLn "Hello, Haskell!"
-    s <- return $ And (Prop "P") (Prop "Q")
+    s <- return $ And p q
     putStrLn $ show s
     putStrLn $ show $ evaluate s $ Map.fromList [("P", True), ("Q", False)]
     putStrLn $ show $ evaluate s $ Map.fromList [("P", True), ("Q", True)]
-    s <- return $ (Prop "P") @& (Prop "Q")
+    s <- return $ p @& (neg q)
     putStrLn $ show $ evaluate s $ Map.fromList [("P", True), ("Q", False)]
