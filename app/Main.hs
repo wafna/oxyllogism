@@ -15,6 +15,8 @@ data Sentence
 
 type Valuation = Map String Bool
 
+-- Evaluate a sentence with a given valuation of its atoms.
+-- Errors if the valuation doesn't satisfy all atoms.
 evaluate :: Sentence -> Valuation -> Bool
 evaluate s v = case s of
     Prop name -> v Map.! name
@@ -23,6 +25,7 @@ evaluate s v = case s of
     Or p q -> (evaluate p v) || (evaluate q v)
     If p q -> (not $ evaluate p v) || (evaluate q v)
 
+-- Find all atoms in a sentence.
 atoms :: Sentence -> Set String
 atoms s = case s of
     Prop name -> Set.fromList [name]
@@ -31,21 +34,22 @@ atoms s = case s of
     Or p q -> (atoms p) `Set.union` (atoms q)
     If p q -> (atoms p) `Set.union` (atoms q)
 
+-- Can't use `not` or `negate`.
 neg :: Sentence -> Sentence
 neg = Not
 
-(@&) :: Sentence -> Sentence -> Sentence
-(@&) = And
+(/&) :: Sentence -> Sentence -> Sentence
+(/&) = And
 
-(@|) :: Sentence -> Sentence -> Sentence
-(@|) = Or
+(/|) :: Sentence -> Sentence -> Sentence
+(/|) = Or
 
-(@>) :: Sentence -> Sentence -> Sentence
-(@>) p q = Or (Not p) q
+(/>) :: Sentence -> Sentence -> Sentence
+(/>) = If
 
 -- Analagous to arithmetic.
-infixl 7  @&
-infixl 6  @|, @>
+infixl 7  /&
+infixl 6  /|, />
 
 main :: IO ()
 main = 
@@ -59,5 +63,5 @@ main =
     putStrLn $ show s
     putStrLn $ show $ evaluate s $ Map.fromList [("P", True), ("Q", False)]
     putStrLn $ show $ evaluate s $ Map.fromList [("P", True), ("Q", True)]
-    s <- return $ p @& (neg q)
+    s <- return $ p /& (neg q)
     putStrLn $ show $ evaluate s $ Map.fromList [("P", True), ("Q", False)]
