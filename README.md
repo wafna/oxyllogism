@@ -17,3 +17,7 @@ Also required was
 `cabal build`
 
 `cabal run`
+
+Or, use the `Makefile` to stack commands, e.g.
+
+`make clean run`
