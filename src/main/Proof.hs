@@ -35,6 +35,7 @@ data Derivation = Derivation { derivationGoal :: Sentence, derivationSteps :: [S
 spacedWords :: [String] -> String
 spacedWords ws = List.intercalate " " ws
 
+-- | Pretty it up.
 showDerivation :: Derivation -> String
 showDerivation d = List.intercalate "\n" $ map (\ (nth, Step rule result) -> concat [show nth, ".  ", showRule rule, show result]) $ zip [(1::Int)..] $ reverse $ derivationSteps d
 
@@ -102,14 +103,15 @@ checkMaybeResult expected actual rule =
 pr :: Sentence -> Derivator Int
 pr s = addStep (Premise s) s
 
--- | Apply double negation
+-- | Apply double negation, return the step number.
 dna :: Int -> Sentence -> Derivator Int
 dna p r = nthStep p >>= \x -> checkResult r (neg $ neg $ stepResult x) (DoubleNegApply p) 
 
+-- | Remove double negation, return the step number.
 dnr :: Int -> Sentence -> Derivator Int
 dnr p r = nthStep p >>= \ x -> checkMaybeResult r (doubleNegation $ stepResult x) (DoubleNegRemove p)
 
--- | Apply modus ponens using the two steps, check the result, return step number.
+-- | Apply modus ponens using the two steps, check the result, return the step number.
 -- The fist index must point to the conditional.
 mp :: Int -> Int -> Sentence -> Derivator Int
 mp p q r = do
@@ -117,7 +119,7 @@ mp p q r = do
     y <- nthStep q
     checkMaybeResult r (modusPonens (stepResult x) (stepResult y)) (ModusPonens p q)
 
--- | Apply modus tollens using the two steps, check the result, return step number.
+-- | Apply modus tollens using the two steps, check the result, return the step number.
 -- The fist index must point to the conditional.
 mt :: Int -> Int -> Sentence -> Derivator Int
 mt p q r = do
@@ -125,42 +127,42 @@ mt p q r = do
     y <- nthStep q
     checkMaybeResult r (modusTollens (stepResult x) (stepResult y)) (ModusTollens p q)
 
--- | Simplify left.
+-- | Simplify left, return the step number.
 sl :: Int -> Int -> Sentence -> Derivator Int
 sl p q r = do
     x <- nthStep p
     y <- nthStep q
     checkMaybeResult r (simplifyLeft (stepResult x) (stepResult y)) (SimplifyLeft p q)
 
--- | Simplify right.
+-- | Simplify right, return the step number.
 sr :: Int -> Int -> Sentence -> Derivator Int
 sr p q r = do
     x <- nthStep p
     y <- nthStep q
     checkMaybeResult r (simplifyRight (stepResult x) (stepResult y)) (SimplifyLeft p q)
 
--- | Modus tollendo ponens left.
+-- | Modus tollendo ponens left, return the step number.
 mtpl :: Int -> Int -> Sentence -> Derivator Int
 mtpl p q r = do
     x <- nthStep p
     y <- nthStep q
     checkMaybeResult r (modusTollendoPonensLeft (stepResult x) (stepResult y)) (ModusTollendoPonensLeft p q)
 
--- | Modus tollendo ponens right.
+-- | Modus tollendo ponens right, return the step number.
 mtpr :: Int -> Int -> Sentence -> Derivator Int
 mtpr p q r = do
     x <- nthStep p
     y <- nthStep q
     checkMaybeResult r (modusTollendoPonensRight (stepResult x) (stepResult y)) (ModusTollendoPonensRight p q)
 
--- | Conjoin two steps.
+-- | Conjoin two steps, return the step number.
 adj :: Int -> Int -> Sentence -> Derivator Int
 adj p q r = do
     x <- nthStep p
     y <- nthStep q
     checkResult r (adjunction  (stepResult x) (stepResult y)) (Adjunction p q)
 
-
+-- | Disjoin any proposition, return the step number.
 add :: Int -> Sentence -> Sentence -> Derivator Int
 add p q r = do
     x <- nthStep p

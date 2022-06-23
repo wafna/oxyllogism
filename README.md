@@ -72,3 +72,7 @@ Finally, the `qed` method asserts that the result of the indicated step matches 
 4.  mp       1 2        (q ⊃ ¬r)
 5.  mp       4 3        ¬r
 ```
+
+### Documentation
+
+Run `make docco` to generate the documentation for the source code.
