@@ -210,7 +210,7 @@ simplifyLeft s element = case s of
     Or p q -> if (p == element) then Just q else Nothing
     _ -> Nothing
 
--- | Infer the right side of a disjunction from the left side.
+-- | Infer the left side of a disjunction from the right side.
 simplifyRight :: Sentence -> Sentence -> Maybe Sentence
 simplifyRight s element = case s of 
     Or p q -> if (q == element) then Just p else Nothing
