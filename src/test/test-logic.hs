@@ -1,6 +1,7 @@
 module Main where
 
 import qualified Data.Map as Map
+import qualified Data.Either as Either
 import Data.List (intercalate)
 import Test.Hspec
 import Logic
@@ -80,7 +81,24 @@ axiomsSpec =
     evaluate1 s e v = it (showValuation v) $ e == evaluate s v
 
 substitutionSpec :: Spec
-substitutionSpec = describe "substitutions" $ do
+substitutionSpec = 
+    let
+        p = Prop "p"
+        q = Prop "q"
+        r = Prop "r"
+    in
+    describe "substitutions" $ do
+        success (p ∧ (neg q)) (propName q) r (p ∧ (neg r))
+        success (p ∧ (neg q)) (propName q) (q ⊃ r) (p ∧ (neg (q ⊃ r)))
+        failure (p ∧ (neg q)) (propName q) p
+    where
+    success src target sub res = it ("sub " ++ show sub ++ " for " ++ target ++ " in " ++ show src ++ " yields " ++ show res) $ 
+        Either.either (const False) ((==) res) $ substitute src target sub
+    failure src target sub = it ("sub " ++ show sub ++ " for " ++ target ++ " in " ++ show src ++ " fails.") $
+        Either.isLeft $ substitute src target sub
+
+transformationsSpec :: Spec
+transformationsSpec = describe "transformations" $ do
     pendingTests
 
 main :: IO ()
@@ -88,3 +106,4 @@ main = hspec $ do
     evaluateSpec
     axiomsSpec
     substitutionSpec
+    transformationsSpec
