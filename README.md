@@ -1,6 +1,6 @@
 # Oxyllogism
 
-A system for constructing, evaluating, and transforming, and deriving statements in propositional logic.
+A system for constructing, evaluating, transforming, and deriving statements in propositional logic.
 
 ## Haskell
 
