@@ -13,10 +13,6 @@ q = Prop "q"
 r :: Sentence
 r = Prop "r"
 
-pendingTests :: Spec
-pendingTests = do
-    it "needs some tests" pending
-
 showBool :: Bool -> String
 showBool b = if b then "T" else "F"
 
@@ -57,8 +53,8 @@ evaluateSpec =
             eval False $ valuation [(propName p, True), (propName q, False)]
             eval False $ valuation [(propName p, False), (propName q, True)]
             eval True $ valuation [(propName p, True), (propName q, True)]
-        describe "≢" $ do
-            eval <- return $ evaluate1 (p ≢ q) 
+        describe "⊕" $ do
+            eval <- return $ evaluate1 (p ⊕ q) 
             eval False $ valuation [(propName p, False), (propName q, False)]
             eval True $ valuation [(propName p, True), (propName q, False)]
             eval True $ valuation [(propName p, False), (propName q, True)]
@@ -95,7 +91,20 @@ substitutionSpec =
 
 transformationsSpec :: Spec
 transformationsSpec = describe "transformations" $ do
-    pendingTests
+    describe "invert" $ do
+        invert1 true false
+        invert1 false true
+        invert1 p $ neg p
+        invert1 (neg p) $ p
+        invert1 (p ∧ q) $ (neg p ∨ neg q)
+        invert1 (p ∨ q) $ (neg p ∧ neg q)
+        invert1 (p ≡ q) $ (p ⊕ q)
+        invert1 (p ⊕ q) $ (p ≡ q)
+    where
+    invert1 x y = it (show x ++ " yields " ++ show y) $ y == invert x
+
+inferencesSpec :: Spec
+inferencesSpec = it "inferences" pending
 
 main :: IO ()
 main = hspec $ do

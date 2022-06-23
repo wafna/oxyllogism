@@ -25,7 +25,7 @@ instance Show Sentence where
         Or p q -> "(" ++ show p ++ " ∨ " ++ show q ++ ")"
         If p q -> "(" ++ show p ++ " ⊃ " ++ show q ++ ")"
         Iff p q -> "(" ++ show p ++ " ≡ " ++ show q ++ ")"
-        Xor p q -> "(" ++ show p ++ " ≢ " ++ show q ++ ")"
+        Xor p q -> "(" ++ show p ++ " ⊕ " ++ show q ++ ")"
 
 true :: Sentence
 true = Const True
@@ -44,11 +44,11 @@ neg = Not
 (⊃) = If
 (≡) :: Sentence -> Sentence -> Sentence
 (≡) = Iff
-(≢) :: Sentence -> Sentence -> Sentence
-(≢) = Xor
+(⊕) :: Sentence -> Sentence -> Sentence
+(⊕) = Xor
 
 -- Analagous to arithmetic.
-infixl 8  ≡, ≢
+infixl 8  ≡, ⊕
 infixl 7  ∧
 infixl 6  ∨, ⊃
 
@@ -118,18 +118,20 @@ substitute source target substitution =
             Or p q -> (subs p) ∨ (subs q)
             If p q -> (subs p) ⊃ (subs q)
             Iff p q -> (subs p) ≡ (subs q)
-            Xor p q -> (subs p) ≢ (subs q)
+            Xor p q -> (subs p) ⊕ (subs q)
     in
     if Set.null overlap
         then Right $ subs source
         else Left $ "Substitution clashes with target on " ++ show overlap
 
+-- | Infer the consequent of a conditional from the antecedent.
 modusPonens :: Sentence -> Sentence -> Maybe Sentence
 modusPonens conditional antecedent = case conditional of
     If p q -> if (p == antecedent) then Just q else Nothing
     Or p q -> if (neg antecedent == p) then Just q else Nothing
     _ -> Nothing
 
+-- | Infer the antecedant of a conditional from the denial of the consequent.
 modusTollens :: Sentence -> Sentence -> Maybe Sentence
 modusTollens conditional consequent = case conditional of
     If (Not p) (Not q) -> if (q == consequent) then Just p else Nothing
@@ -138,6 +140,7 @@ modusTollens conditional consequent = case conditional of
     Or p (Not q) -> if (q == consequent) then Just p else Nothing
     _ -> Nothing
 
+-- | Infer either side of a disjunction from the negation of either of its arguments.
 modusTollensPonens :: Sentence -> Sentence -> Maybe Sentence
 modusTollensPonens disjunction denial = case denial of
     Not p -> case disjunction of
@@ -145,25 +148,28 @@ modusTollensPonens disjunction denial = case denial of
         _ -> Nothing
     _ -> Nothing
 
-
-addition :: Sentence -> Sentence -> Sentence
-addition p q = p ∨ q
-
+-- | Infer either side of a conjunction from the other of its arguments.
 simplification :: Sentence -> Sentence -> Maybe Sentence
 simplification conjunction element = case conjunction of 
     Or p q -> if (p == element) then Just q else if (q == element) then Just p else Nothing
     _ -> Nothing
 
+-- | Disjoin two sentences.
+addition :: Sentence -> Sentence -> Sentence
+addition p q = p ∨ q
+
+-- | Conjoin two sentences.
 adjunction :: Sentence -> Sentence -> Sentence
 adjunction p q = p ∧ q
 
+-- | Negates a sentence by flipping the outermost connective where it can.
 invert :: Sentence -> Sentence
 invert s = case s of
-    p@(Prop _) -> Not p
+    Prop _ -> Not s
     Const b -> Const $ not b
     Not p -> p
     Or p q -> And (neg p) (neg q)
     And p q -> Or (neg p) (neg q)
-    If p q -> And p (neg q)
+    If p q -> And p (neg q) -- do we need a Because?
     Iff p q -> Xor p q
     Xor p q -> Iff p q
