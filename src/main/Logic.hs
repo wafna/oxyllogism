@@ -192,18 +192,28 @@ modusTollens conditional consequent = case conditional of
         else Nothing
     _ -> Nothing
 
--- | Infer either side of a disjunction from the negation of either of its arguments.
-modusTollendoPonens :: Sentence -> Sentence -> Maybe Sentence
-modusTollendoPonens disjunction denial = case denial of
-    Not p -> case disjunction of
-        Or x y -> if (p == x) then Just y else if (p == y) then Just x else Nothing
-        _ -> Nothing
+-- | Infer the right side of a disjunction from the negation of its left side.
+modusTollendoPonensLeft :: Sentence -> Sentence -> Maybe Sentence
+modusTollendoPonensLeft disjunction denial = case disjunction of
+    Or x y -> if (denial == neg x) then Just y else Nothing
     _ -> Nothing
 
--- | Infer either side of a conjunction from the other of its arguments.
-simplification :: Sentence -> Sentence -> Maybe Sentence
-simplification conjunction element = case conjunction of 
-    Or p q -> if (p == element) then Just q else if (q == element) then Just p else Nothing
+-- | Infer the left side of a disjunction from the negation of its right side.
+modusTollendoPonensRight :: Sentence -> Sentence -> Maybe Sentence
+modusTollendoPonensRight disjunction denial = case disjunction of
+    Or x y -> if (denial == neg y) then Just x else Nothing
+    _ -> Nothing
+
+-- | Infer the right side of a disjunction from the left side.
+simplifyLeft :: Sentence -> Sentence -> Maybe Sentence
+simplifyLeft s element = case s of 
+    Or p q -> if (p == element) then Just q else Nothing
+    _ -> Nothing
+
+-- | Infer the right side of a disjunction from the left side.
+simplifyRight :: Sentence -> Sentence -> Maybe Sentence
+simplifyRight s element = case s of 
+    Or p q -> if (q == element) then Just p else Nothing
     _ -> Nothing
 
 -- | Disjoin two sentences.
