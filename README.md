@@ -11,6 +11,11 @@ I had to install `gcc` and `make`, as well, on a fairly fresh XUbuntu.
 Also required was 
 
     sudo apt-get install libgmp3-dev
+    sudo apt-get install libtinfo-dev
+
+Now, install some dependencies.
+
+    cabal update && cabal install --package-env=. --lib hspec hspec-contrib QuickCheck HUnit
 
 ## Building
 

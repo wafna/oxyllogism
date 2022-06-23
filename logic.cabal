@@ -18,19 +18,20 @@ executable logic
     main-is:            Main.hs
     other-modules:      Logic
     other-extensions:   UnicodeSyntax
-    build-depends:    
-        base ^>=4.14.3.0,
-        containers == 0.6.5.*
     ghc-options:        -Wall
     default-language:   Haskell2010
+    build-depends:    
+                        base ^>=4.14.3.0,
+                        containers == 0.6.5.*
 
 test-suite test-logic
-  type:                 exitcode-stdio-1.0
-  hs-source-dirs:       src/main, src/test
-  main-is:              test-logic.hs
-  other-modules:        Logic
-  build-depends:    
-        base ^>=4.14.3.0,
-        containers == 0.6.5.*
-  Ghc-options:          -Wall
-  default-language:     Haskell2010
+    type:               exitcode-stdio-1.0
+    hs-source-dirs:     src/main, src/test
+    main-is:            test-logic.hs
+    other-modules:      Logic
+    ghc-options:        -Wall
+    default-language:   Haskell2010
+    build-depends:    
+                        base ^>=4.14.3.0,
+                        containers == 0.6.5.*,
+                        hspec ^>= 2.7.4

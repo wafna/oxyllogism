@@ -12,3 +12,8 @@ run: FORCE
 
 test: FORCE
 	@cabal v2-test
+
+test-log: FORCE
+	@cat ./dist-newstyle/build/x86_64-linux/ghc-8.10.7/logic-0.1.0.0/t/test-logic/test/logic-0.1.0.0-test-logic.log
+
+
