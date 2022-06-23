@@ -24,6 +24,7 @@ data Step = Step { stepRule :: Rule, stepResult :: Sentence }
 data Derivation = Derivation { derivationGoal :: Sentence, derivationSteps :: [Step] }
     deriving (Show)
 
+-- Derivation state monad.
 type Derivator = State Derivation
 
 -- | Starting with a goal, provide a series of steps to achieve the goal.
@@ -41,17 +42,36 @@ addStep rule result = do
     modify $ \ d -> d { derivationSteps = (Step rule result) : derivationSteps d }
     currentStep
 
-qed :: Derivator ()
-qed = do
-    r <- gets $ stepResult . head . derivationSteps
+-- | asserts that the result of the given step satisfies the goal of the derivation.
+qed :: Int -> Derivator ()
+qed i = do
+    r <- nthStep i
     g <- gets derivationGoal
-    if r /= g
-        then error "Goal not reached."
+    if stepResult r /= g
+        then error $ "Goal not reached: found " ++ show r ++ " need " ++ show g
         else return ()
 
 -- | Introduce a premise, return the step number.
 pr :: Sentence -> Derivator Int
 pr s = addStep (Premise s) s
+
+-- | Apply double negation
+dna :: Int -> Sentence -> Derivator Int
+dna p r = do
+    x <- nthStep p
+    u <- return $ neg $ neg $ stepResult x
+    if (u /= r)
+        then error $ "Wrong result: " ++ show u
+        else addStep (DoubleNegApply p) r
+
+dnr :: Int -> Sentence -> Derivator Int
+dnr p r = do
+    x <- nthStep p
+    case doubleNegation $ stepResult x of
+        Nothing -> error $ "Invalid application: dnr " ++ show (stepResult x) ++ " -> " ++ show r
+        Just u -> if (u /= r)
+            then error $ "Wrong result: " ++ show u
+            else addStep (DoubleNegRemove p) r
 
 -- | Apply modus ponens using the two steps, check the result, return step number.
 -- The fist index must point to the conditional.
@@ -62,6 +82,17 @@ mp p q r = do
     case modusPonens (stepResult x) (stepResult y) of
         Nothing -> error $ "Invalid application: " ++ show (stepResult x) ++ " mp " ++ show (stepResult y) ++ " -> " ++ show r
         Just u -> if (u /= r)
-            then error "Wrong result."
+            then error $ "Wrong result: " ++ show u
             else addStep (ModusPonens p q) r
 
+-- | Apply modus tollens using the two steps, check the result, return step number.
+-- The fist index must point to the conditional.
+mt :: Int -> Int -> Sentence -> Derivator Int
+mt p q r = do
+    x <- nthStep p
+    y <- nthStep q
+    case modusTollens (stepResult x) (stepResult y) of
+        Nothing -> error $ "Invalid application: " ++ show (stepResult x) ++ " mt " ++ show (stepResult y) ++ " -> " ++ show r
+        Just u -> if (u /= r)
+            then error "Wrong result."
+            else addStep (ModusTollens p q) r

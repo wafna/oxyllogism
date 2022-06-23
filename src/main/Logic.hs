@@ -187,8 +187,9 @@ modusPonens conditional antecedent = case conditional of
 -- | Infer the antecedant of a conditional from the denial of the consequent.
 modusTollens :: Sentence -> Sentence -> Maybe Sentence
 modusTollens conditional consequent = case conditional of
-    If (Not p) (Not q) -> if (q == consequent) then Just p else Nothing
-    If p q -> if (q == neg consequent) then Just $ neg p else Nothing
+    If p q -> if (q == neg consequent) || (neg q == consequent) 
+        then Just $ neg p 
+        else Nothing
     _ -> Nothing
 
 -- | Infer either side of a disjunction from the negation of either of its arguments.
@@ -214,10 +215,10 @@ adjunction :: Sentence -> Sentence -> Sentence
 adjunction p q = And p q
 
 -- | Infer a sentence from its double negation.
-doubleNegation :: Sentence -> Sentence
+doubleNegation :: Sentence -> Maybe Sentence
 doubleNegation p = case p of 
-    Not (Not q) -> q
-    _ -> p
+    Not (Not q) -> Just q
+    _ -> Nothing
 
 -- Transformations
 

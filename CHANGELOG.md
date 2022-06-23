@@ -1,5 +1,9 @@
 # Revision history for logic
 
+## 0.3.0.0 -- 2022-06-23
+
+* Derivations
+
 ## 0.2.0.0 -- 2022-06-23
 
 * More operators, rules of inference, and transformations.

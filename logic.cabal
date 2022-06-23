@@ -1,7 +1,7 @@
 cabal-version:      2.4
 
 name              : Oxyllogism
-version           : 0.2.0.0
+version           : 0.3.0.0
 synopsis          : Fun with formal logic.
 description       : A DSL for formulating, deriving, and evaluating logical expressions.
 homepage          : https://github.com/wafna/oxyllogism
