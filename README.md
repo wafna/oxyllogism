@@ -1,6 +1,6 @@
 # Oxyllogism
 
-Fun with logic.
+A system for constructing, evaluating, and transforming statements in propositional logic.
 
 ## Haskell
 
