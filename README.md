@@ -41,8 +41,7 @@ Modify `src/main/Main.hs`, then `make run`.
 ### Derivations
 
 The system of derivation used here requires you to provide the expected result from the application of a rule except, of course, for the introduction of premises.
-This is for pedagogical purposes.
-
+This is for pedagogical purposes but it also makes the code self documenting.
 Call `derive` with the goal of the derivation, in this case `(neg r)`.
 The second argument is a monadic computation over the derivation.
 We add steps, recording their indices, and referencing these indices in subsequent steps.
