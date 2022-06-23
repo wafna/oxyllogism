@@ -48,7 +48,7 @@ neg = Not
 (≢) = Xor
 
 -- Analagous to arithmetic.
-infixl 8  ≡
+infixl 8  ≡, ≢
 infixl 7  ∧
 infixl 6  ∨, ⊃
 
