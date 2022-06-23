@@ -2,10 +2,10 @@
 FORCE: ;
 
 clean: FORCE
-	@cabal clean
+	@cabal v2-clean
 
 build: FORCE
-	@cabal build
+	@cabal v2-build
 
 run: FORCE
-	@cabal run
+	@cabal v2-run
