@@ -1,8 +1,10 @@
+-- | Sandbox for logic.
 module Main where
 
 import qualified Data.Map as Map
 import Logic
 
+-- | Have at it...
 main :: IO ()
 main = 
     let

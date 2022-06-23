@@ -10,6 +10,9 @@ build: FORCE
 run: FORCE
 	@cabal v2-run logic
 
+docco: FORCE
+	@cabal v2-haddock logic
+
 test: FORCE
 	@cabal v2-test
 

@@ -1,3 +1,5 @@
+-- | Construct, transform, and derive sentences (formulae) in formal logic.
+
 module Logic where 
 
 import Data.Map (Map)
@@ -5,6 +7,7 @@ import qualified Data.Map as Map
 import Data.Set (Set)
 import qualified Data.Set as Set
 
+-- | Structure of sentences in propositional logic.
 data Sentence 
     = Const Bool
     | Prop { propName :: String }
@@ -33,44 +36,76 @@ instance Show Sentence where
         Xor p q -> "(" ++ show p ++ " ⊕ " ++ show q ++ ")"
 
 -- Operators and constants.
+-- Functions are provided for convenient infix notation without special unicode.
 
+-- | True
 true :: Sentence
 true = Const True
+-- | False
 false :: Sentence
 false = Const False
--- Can't use `not` or `negate`.
+-- | Negation
 neg :: Sentence -> Sentence
 neg = Not
+-- | Negation
 (¬) :: Sentence -> Sentence
 (¬) = Not
+-- | Conjunction
+and :: Sentence -> Sentence -> Sentence
+and = And
+-- | Conjunction
 (∧) :: Sentence -> Sentence -> Sentence
 (∧) = And
+-- | Negation of conjunction
 (↑) :: Sentence -> Sentence -> Sentence
 (↑) = Nand
+-- | Negation of conjunction
+nand :: Sentence -> Sentence -> Sentence
+nand = Nand
+-- | Disjunction
 (∨) :: Sentence -> Sentence -> Sentence
 (∨) = Or
+-- | Disjunction
+or :: Sentence -> Sentence -> Sentence
+or = Or
+-- | Negation of disjunction
 (↓) :: Sentence -> Sentence -> Sentence
 (↓) = Nor
+-- | Negation of disjunction
+nor :: Sentence -> Sentence -> Sentence
+nor = Nor
+-- | Material implication
 (⊃) :: Sentence -> Sentence -> Sentence
 (⊃) = If
+-- | Material implication
+implies :: Sentence -> Sentence -> Sentence
+implies = If
+-- | Material equivalence
 (≡) :: Sentence -> Sentence -> Sentence
 (≡) = Iff
+-- | Material equivalence
+iff :: Sentence -> Sentence -> Sentence
+iff = Iff
+-- | Exclusive disjunction.
 (⊕) :: Sentence -> Sentence -> Sentence
 (⊕) = Xor
+-- | Exclusive disjunction.
+xor :: Sentence -> Sentence -> Sentence
+xor = Xor
 
 -- Analagous to arithmetic.
-infixl 8  ≡, ⊕
-infixl 7  ∧
-infixl 6  ∨, ⊃
+infixl 8  ≡, ⊕, `iff`, `xor`
+infixl 7  ∧, ↑, `nand`
+infixl 6  ∨, ⊃, ↓, `or`, `nor`, `implies`
 
 -- | Pairings of names and truth values to be applied to a sentence.
 type Valuation = Map String Bool
 
--- | Hide map from the client.
+-- | To avoid importing `Map.fromList`.
 valuation :: [(String, Bool)] -> Map String Bool
 valuation vs = Map.fromList vs
 
--- | Given a list of names, produce all possible permutations of truth value assignments to those names
+-- | Given a list of names, produce all distinct permutations of truth value assignments to those names
 valueSet :: [String] -> [[(String, Bool)]]
 valueSet names = map (zip names) $ comb (length names) [True, False]
     where
@@ -80,7 +115,7 @@ valueSet names = map (zip names) $ comb (length names) [True, False]
 
 
 -- | Evaluate a sentence with a given valuation of its atoms.
--- | Errors if the valuation doesn't satisfy all atoms.
+-- Errors if the valuation doesn't satisfy all atoms.
 evaluate :: Sentence -> Valuation -> Bool
 evaluate s v = case s of
     Const b -> b
@@ -102,7 +137,7 @@ evaluate s v = case s of
         in
         (not p' && q') || (p' && not q')
 
--- Find all atoms in a sentence.
+-- |Find all atomic propositions in a sentence.
 atoms :: Sentence -> Set String
 atoms s = case s of
     Const _ -> Set.empty
@@ -173,11 +208,17 @@ simplification conjunction element = case conjunction of
 
 -- | Disjoin two sentences.
 addition :: Sentence -> Sentence -> Sentence
-addition p q = p ∨ q
+addition p q = Or p q
 
 -- | Conjoin two sentences.
 adjunction :: Sentence -> Sentence -> Sentence
-adjunction p q = p ∧ q
+adjunction p q = And p q
+
+-- | Infer a sentence from its double negation.
+doubleNegation :: Sentence -> Sentence
+doubleNegation p = case p of 
+    Not (Not q) -> q
+    _ -> p
 
 -- Transformations
 
