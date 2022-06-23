@@ -1,3 +1,5 @@
+# Handy shortcuts.
+
 # Always out of date.
 FORCE: ;
 
