@@ -3,7 +3,6 @@ module Main where
 import qualified Data.Map as Map
 import Logic
 
-
 main :: IO ()
 main = 
     let
@@ -23,3 +22,5 @@ main =
     putStrLn $ show $ modusPonens (p ⊃ q) p 
     putStrLn $ show $ modusPonens (x2 ⊃ q) x2 
     putStrLn $ show $ modusPonens ((¬) x2 ∨ q) x2
+
+    putStrLn $ show $ valueSet ["p", "q", "r"]

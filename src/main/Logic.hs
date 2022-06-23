@@ -52,20 +52,24 @@ infixl 8  ≡, ≢
 infixl 7  ∧
 infixl 6  ∨, ⊃
 
+-- | Pairings of names and truth values to be applied to a sentence.
 type Valuation = Map String Bool
 
+-- | Hide map from the client.
 valuation :: [(String, Bool)] -> Map String Bool
 valuation vs = Map.fromList vs
 
--- valueSet :: [String] -> [(String, Bool)]
--- valueSet names = builder (2 ** length names) $ (flip map) names $ \ name -> (name, False)
---     where
---     builder n perms = if n == 0 
---         then perms
---         else (flip map) (head perms) $ \ (n, v) -> (n)
+-- | Given a list of names, produce all possible permutations of truth value assignments to those names
+valueSet :: [String] -> [[(String, Bool)]]
+valueSet names = map (zip names) $ comb (length names) [True, False]
+    where
+    comb :: Int -> [a] -> [[a]]
+    comb 0 _ = [[]]
+    comb n r = [i:s | i <- r, s <- comb (n-1) r]
 
--- Evaluate a sentence with a given valuation of its atoms.
--- Errors if the valuation doesn't satisfy all atoms.
+
+-- | Evaluate a sentence with a given valuation of its atoms.
+-- | Errors if the valuation doesn't satisfy all atoms.
 evaluate :: Sentence -> Valuation -> Bool
 evaluate s v = case s of
     Const b -> b

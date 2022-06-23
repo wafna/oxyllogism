@@ -64,27 +64,13 @@ axiomsSpec =
         r = Prop "r"
     in
     describe "axioms" $ do
-        pq <- return
-            [ [(propName p, False), (propName q, False)]
-            , [(propName p, True) , (propName q, False)]
-            , [(propName p, False), (propName q, True)]
-            , [(propName p, True) , (propName q, True)]
-            ]
+        pq <- return $ valueSet [propName p, propName q]
 
-        pqr <- return
-            [ [(propName p, False), (propName q, False), (propName r, False)]
-            , [(propName p, True) , (propName q, False), (propName r, False)]
-            , [(propName p, False), (propName q, True) , (propName r, False)]
-            , [(propName p, True) , (propName q, True) , (propName r, False)]
-            , [(propName p, False), (propName q, False), (propName r, True)]
-            , [(propName p, True) , (propName q, False), (propName r, True)]
-            , [(propName p, False), (propName q, True) , (propName r, True)]
-            , [(propName p, True) , (propName q, True) , (propName r, True)]
-            ]
+        pqr <- return $ valueSet [propName p, propName q, propName r]
 
         tautology pq $ p ⊃ (q ⊃ p)
         tautology pq $ ((neg p) ⊃ (neg q)) ⊃ (q ⊃ p)
-        tautology pqr $ (p ⊃ (q  ⊃ r)) ⊃ ((p ⊃ q) ⊃ (p ⊃ r))
+        tautology pqr $ (p ⊃ (q ⊃ r)) ⊃ ((p ⊃ q) ⊃ (p ⊃ r))
     where
     tautology v t = describe (show t) $ sequence_ $ map (evaluate1 t True) $ map valuation v
     evaluate1 s e v = it (showValuation v) $ e == evaluate s v
