@@ -8,4 +8,7 @@ build: FORCE
 	@cabal v2-build
 
 run: FORCE
-	@cabal v2-run
+	@cabal v2-run logic
+
+test: FORCE
+	@cabal v2-test
