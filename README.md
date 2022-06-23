@@ -42,3 +42,23 @@ Modify `src/main/Main.hs`, then `make run`.
 
 The system of derivation used here requires you to provide the expected result from the application of a rule except, of course, for the introduction of premises.
 This is for pedagogical purposes.
+
+Call `derive` with the goal of the derivation, in this case `(neg r)`.
+The second argument is a monadic computation over the derivation.
+We add steps, recording their indices, and referencing these indices in subsequent steps.
+
+The `pr` (premise) function introduces a premise by fiat without justification.
+
+The `mp` (modus ponens) function takes two indices, performs modus ponens, and asserts that the result matches the expected result in the third argument.
+
+Finally, the `qed` method asserts that the last result derived matches the stated goal of the derivation.
+
+```haskell2010
+derive (neg r) $ do
+    i1 <- pr $ p ⊃ (q ⊃ (neg r))
+    i2 <- pr p
+    i3 <- pr q
+    i4 <- mp i1 i2 $ q ⊃ (neg r)
+    mp i4 i3 (neg r)
+    qed
+```
