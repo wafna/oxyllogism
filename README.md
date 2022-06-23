@@ -66,9 +66,9 @@ The `mp` (modus ponens) function takes two indices, performs modus ponens, and a
 Finally, the `qed` method asserts that the result of the indicated step matches the stated goal of the derivation.
 
 ```haskell
-1.  pr                  (P ⊃ (Q ⊃ ¬R))
-2.  pr                  P
-3.  pr                  Q
-4.  mp       1 2        (Q ⊃ ¬R)
-5.  mp       4 3        ¬R
+1.  pr                  (p ⊃ (q ⊃ ¬r))
+2.  pr                  p
+3.  pr                  q
+4.  mp       1 2        (q ⊃ ¬r)
+5.  mp       4 3        ¬r
 ```

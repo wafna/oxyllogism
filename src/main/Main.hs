@@ -29,9 +29,9 @@ showDerivation d = List.intercalate "\n" $ map (\ (nth, Step rule result) -> con
 main :: IO ()
 main = 
     let
-        p = Prop "P"
-        q = Prop "Q"
-        r = Prop "R"
+        p = Prop "p"
+        q = Prop "q"
+        r = Prop "r"
 
         hr = putStrLn $ take 50 $ repeat '-'
     in
@@ -41,9 +41,9 @@ main =
     putStrLn "Evaluation..."
     x1 <- return $ p ∧ q
     putStrLn $ show x1
-    putStrLn $ show $ evaluate x1 $ Map.fromList [("P", True), ("Q", False)]
+    putStrLn $ show $ evaluate x1 $ Map.fromList [(propName p, True), (propName q, False)]
     x2 <- return $ p ∧ (neg q)
-    putStrLn $ show $ evaluate x2 $ Map.fromList [("P", True), ("Q", False)]
+    putStrLn $ show $ evaluate x2 $ Map.fromList [(propName p, True), (propName q, False)]
 
     putStrLn "Substitution..."
     putStrLn $ show $ substitute x2 "Q" $ r ∨ q
