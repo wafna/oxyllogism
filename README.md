@@ -33,3 +33,7 @@ Or, use the `Makefile` to stack commands:
 
     make clean run
     make clean test test-log
+
+## Using
+
+Modify `src/main/Main.hs`, then `make run`.
