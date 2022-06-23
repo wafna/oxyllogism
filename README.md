@@ -24,10 +24,10 @@ If you get errors you may be missing some dependent libraries (see above).
 
 ## Building
 
-`cabal build`
-
-`cabal run`
+    cabal build
+    cabal run
 
 Or, use the `Makefile` to stack commands, e.g.
 
-`make clean run`
+    make clean run
+    make clean test test-log
