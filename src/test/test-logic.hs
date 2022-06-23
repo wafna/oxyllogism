@@ -17,10 +17,13 @@ pendingTests :: Spec
 pendingTests = do
     it "needs some tests" pending
 
+showBool :: Bool -> String
+showBool b = if b then "T" else "F"
+
 showValuation :: Valuation -> String
 showValuation v = intercalate ", " (map showAssignment $ Map.toList v)
     where
-    showAssignment (n, v') = n ++ "=" ++ show v'
+    showAssignment (n, v') = n ++ " = " ++ showBool v'  
 
 evaluateSpec :: Spec
 evaluateSpec = 
@@ -61,7 +64,7 @@ evaluateSpec =
             eval True $ valuation [(propName p, False), (propName q, True)]
             eval False $ valuation [(propName p, True), (propName q, True)]
     where
-    evaluate1 s e v = it (show s ++ " is " ++ show e ++ showWhere) $ e == evaluate s v
+    evaluate1 s e v = it (show s ++ " is " ++ showBool e ++ showWhere) $ e == evaluate s v
         where
         showWhere = if Map.null v then "" else " when " ++ showValuation v
 
