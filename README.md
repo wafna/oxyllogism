@@ -51,8 +51,8 @@ derive (neg r) $ do
     i2 <- pr p
     i3 <- pr q
     i4 <- mp i1 i2 $ q ⊃ (neg r)
-    mp i4 i3 (neg r)
-    qed
+    i5 <- mp i4 i3 (neg r)
+    qed i5
 ```
 
 Call `derive` with the goal of the derivation, in this case `(neg r)`.
@@ -63,4 +63,4 @@ The `pr` (premise) function introduces a premise by fiat without justification.
 
 The `mp` (modus ponens) function takes two indices, performs modus ponens, and asserts that the result matches the expected result in the third argument.
 
-Finally, the `qed` method asserts that the last result derived matches the stated goal of the derivation.
+Finally, the `qed` method asserts that the result of the indicated step matches the stated goal of the derivation.
