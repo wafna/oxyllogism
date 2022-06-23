@@ -64,3 +64,11 @@ The `pr` (premise) function introduces a premise by fiat without justification.
 The `mp` (modus ponens) function takes two indices, performs modus ponens, and asserts that the result matches the expected result in the third argument.
 
 Finally, the `qed` method asserts that the result of the indicated step matches the stated goal of the derivation.
+
+```haskell
+1.  pr                  (P ⊃ (Q ⊃ ¬R))
+2.  pr                  P
+3.  pr                  Q
+4.  mp       1 2        (Q ⊃ ¬R)
+5.  mp       4 3        ¬R
+```
