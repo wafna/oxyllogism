@@ -22,5 +22,3 @@ main =
     putStrLn $ show $ modusPonens (p ⊃ q) p 
     putStrLn $ show $ modusPonens (x2 ⊃ q) x2 
     putStrLn $ show $ modusPonens ((¬) x2 ∨ q) x2
-
-    putStrLn $ show $ valueSet ["p", "q", "r"]

@@ -27,30 +27,35 @@ evaluateSpec =
             evaluate1 false False $ valuation []
             evaluate1 (neg false) True $ valuation []
         describe "∧" $ do
-            evaluate1 (p ∧ q) False $ valuation [(propName p, False), (propName q, False)]
-            evaluate1 (p ∧ q) False $ valuation [(propName p, True), (propName q, False)]
-            evaluate1 (p ∧ q) False $ valuation [(propName p, False), (propName q, True)]
-            evaluate1 (p ∧ q) True $ valuation [(propName p, True), (propName q, True)]
+            eval <- return $ evaluate1 (p ∧ q) 
+            eval False $ valuation [(propName p, False), (propName q, False)]
+            eval False $ valuation [(propName p, True), (propName q, False)]
+            eval False $ valuation [(propName p, False), (propName q, True)]
+            eval True $ valuation [(propName p, True), (propName q, True)]
         describe "∨" $ do
-            evaluate1 (p ∨ q) False $ valuation [(propName p, False), (propName q, False)]
-            evaluate1 (p ∨ q) True $ valuation [(propName p, True), (propName q, False)]
-            evaluate1 (p ∨ q) True $ valuation [(propName p, False), (propName q, True)]
-            evaluate1 (p ∨ q) True $ valuation [(propName p, True), (propName q, True)]
+            eval <- return $ evaluate1 (p ∨ q) 
+            eval False $ valuation [(propName p, False), (propName q, False)]
+            eval True $ valuation [(propName p, True), (propName q, False)]
+            eval True $ valuation [(propName p, False), (propName q, True)]
+            eval True $ valuation [(propName p, True), (propName q, True)]
         describe "⊃" $ do
-            evaluate1 (p ⊃ q) True $ valuation [(propName p, False), (propName q, False)]
-            evaluate1 (p ⊃ q) False $ valuation [(propName p, True), (propName q, False)]
-            evaluate1 (p ⊃ q) True $ valuation [(propName p, False), (propName q, True)]
-            evaluate1 (p ⊃ q) True $ valuation [(propName p, True), (propName q, True)]
+            eval <- return $ evaluate1 (p ⊃ q) 
+            eval True $ valuation [(propName p, False), (propName q, False)]
+            eval False $ valuation [(propName p, True), (propName q, False)]
+            eval True $ valuation [(propName p, False), (propName q, True)]
+            eval True $ valuation [(propName p, True), (propName q, True)]
         describe "≡" $ do
-            evaluate1 (p ≡ q) True $ valuation [(propName p, False), (propName q, False)]
-            evaluate1 (p ≡ q) False $ valuation [(propName p, True), (propName q, False)]
-            evaluate1 (p ≡ q) False $ valuation [(propName p, False), (propName q, True)]
-            evaluate1 (p ≡ q) True $ valuation [(propName p, True), (propName q, True)]
+            eval <- return $ evaluate1 (p ≡ q) 
+            eval True $ valuation [(propName p, False), (propName q, False)]
+            eval False $ valuation [(propName p, True), (propName q, False)]
+            eval False $ valuation [(propName p, False), (propName q, True)]
+            eval True $ valuation [(propName p, True), (propName q, True)]
         describe "≢" $ do
-            evaluate1 (p ≢ q) False $ valuation [(propName p, False), (propName q, False)]
-            evaluate1 (p ≢ q) True $ valuation [(propName p, True), (propName q, False)]
-            evaluate1 (p ≢ q) True $ valuation [(propName p, False), (propName q, True)]
-            evaluate1 (p ≢ q) False $ valuation [(propName p, True), (propName q, True)]
+            eval <- return $ evaluate1 (p ≢ q) 
+            eval False $ valuation [(propName p, False), (propName q, False)]
+            eval True $ valuation [(propName p, True), (propName q, False)]
+            eval True $ valuation [(propName p, False), (propName q, True)]
+            eval False $ valuation [(propName p, True), (propName q, True)]
     where
     evaluate1 s e v = it (show s ++ " is " ++ show e ++ showWhere) $ e == evaluate s v
         where
@@ -65,7 +70,6 @@ axiomsSpec =
     in
     describe "axioms" $ do
         pq <- return $ valueSet [propName p, propName q]
-
         pqr <- return $ valueSet [propName p, propName q, propName r]
 
         tautology pq $ p ⊃ (q ⊃ p)
