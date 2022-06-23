@@ -45,7 +45,7 @@ This is for pedagogical purposes but it also makes the code self documenting.
 
 Here is a short example:
 
-```haskell2010
+```haskell
 derive (neg r) $ do
     i1 <- pr $ p ⊃ (q ⊃ (neg r))
     i2 <- pr p
