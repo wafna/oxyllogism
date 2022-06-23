@@ -5,7 +5,14 @@ import qualified Data.Either as Either
 import Data.List (intercalate)
 import Test.Hspec
 import Logic
-    
+
+p :: Sentence    
+p = Prop "p"
+q :: Sentence
+q = Prop "q"
+r :: Sentence
+r = Prop "r"
+
 pendingTests :: Spec
 pendingTests = do
     it "needs some tests" pending
@@ -17,10 +24,6 @@ showValuation v = intercalate ", " (map showAssignment $ Map.toList v)
 
 evaluateSpec :: Spec
 evaluateSpec = 
-    let
-        p = Prop "p"
-        q = Prop "q"
-    in
     describe "evaluate" $ do
         describe "const" $ do
             evaluate1 true True $ valuation []
@@ -64,11 +67,6 @@ evaluateSpec =
 
 axiomsSpec :: Spec
 axiomsSpec = 
-    let
-        p = Prop "p"
-        q = Prop "q"
-        r = Prop "r"
-    in
     describe "axioms" $ do
         pq <- return $ valueSet [propName p, propName q]
         pqr <- return $ valueSet [propName p, propName q, propName r]
@@ -82,11 +80,6 @@ axiomsSpec =
 
 substitutionSpec :: Spec
 substitutionSpec = 
-    let
-        p = Prop "p"
-        q = Prop "q"
-        r = Prop "r"
-    in
     describe "substitutions" $ do
         success (p ∧ (neg q)) (propName q) r (p ∧ (neg r))
         success (p ∧ (neg q)) (propName q) (q ⊃ r) (p ∧ (neg (q ⊃ r)))
