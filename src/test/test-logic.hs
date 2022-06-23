@@ -35,12 +35,24 @@ evaluateSpec =
             eval False $ valuation [(propName p, True), (propName q, False)]
             eval False $ valuation [(propName p, False), (propName q, True)]
             eval True $ valuation [(propName p, True), (propName q, True)]
+        describe "↑" $ do
+            eval <- return $ evaluate1 (p ↑ q) 
+            eval True $ valuation [(propName p, False), (propName q, False)]
+            eval True $ valuation [(propName p, True), (propName q, False)]
+            eval True $ valuation [(propName p, False), (propName q, True)]
+            eval False $ valuation [(propName p, True), (propName q, True)]
         describe "∨" $ do
             eval <- return $ evaluate1 (p ∨ q) 
             eval False $ valuation [(propName p, False), (propName q, False)]
             eval True $ valuation [(propName p, True), (propName q, False)]
             eval True $ valuation [(propName p, False), (propName q, True)]
             eval True $ valuation [(propName p, True), (propName q, True)]
+        describe "↓" $ do
+            eval <- return $ evaluate1 (p ↓ q) 
+            eval True $ valuation [(propName p, False), (propName q, False)]
+            eval False $ valuation [(propName p, True), (propName q, False)]
+            eval False $ valuation [(propName p, False), (propName q, True)]
+            eval False $ valuation [(propName p, True), (propName q, True)]
         describe "⊃" $ do
             eval <- return $ evaluate1 (p ⊃ q) 
             eval True $ valuation [(propName p, False), (propName q, False)]

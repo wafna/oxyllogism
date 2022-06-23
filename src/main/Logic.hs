@@ -10,22 +10,29 @@ data Sentence
     | Prop { propName :: String }
     | Not Sentence
     | And Sentence Sentence
+    | Nand Sentence Sentence
     | Or Sentence Sentence
+    | Nor Sentence Sentence
     | If Sentence Sentence
     | Iff Sentence Sentence
     | Xor Sentence Sentence
-    deriving (Eq, Read)
+    deriving (Eq)
 
+-- | Pretty it up.
 instance Show Sentence where
     show s = case s of 
         Const b -> if b then "t" else "f"
         Prop n -> n
         Not p -> "¬" ++ show p
         And p q -> "(" ++ show p ++ " ∧ " ++ show q ++ ")"
+        Nand p q -> "(" ++ show p ++ " ↑ " ++ show q ++ ")"
         Or p q -> "(" ++ show p ++ " ∨ " ++ show q ++ ")"
+        Nor p q -> "(" ++ show p ++ " ↓ " ++ show q ++ ")"
         If p q -> "(" ++ show p ++ " ⊃ " ++ show q ++ ")"
         Iff p q -> "(" ++ show p ++ " ≡ " ++ show q ++ ")"
         Xor p q -> "(" ++ show p ++ " ⊕ " ++ show q ++ ")"
+
+-- Operators and constants.
 
 true :: Sentence
 true = Const True
@@ -38,8 +45,12 @@ neg = Not
 (¬) = Not
 (∧) :: Sentence -> Sentence -> Sentence
 (∧) = And
+(↑) :: Sentence -> Sentence -> Sentence
+(↑) = Nand
 (∨) :: Sentence -> Sentence -> Sentence
 (∨) = Or
+(↓) :: Sentence -> Sentence -> Sentence
+(↓) = Nor
 (⊃) :: Sentence -> Sentence -> Sentence
 (⊃) = If
 (≡) :: Sentence -> Sentence -> Sentence
@@ -76,7 +87,9 @@ evaluate s v = case s of
     Prop name -> v Map.! name
     Not p -> not $ evaluate p v
     And p q -> (evaluate p v) && (evaluate q v)
+    Nand p q -> not $ (evaluate p v) && (evaluate q v)
     Or p q -> (evaluate p v) || (evaluate q v)
+    Nor p q -> not $ (evaluate p v) || (evaluate q v)
     If p q -> (not $ evaluate p v) || (evaluate q v)
     Iff p q -> 
         let p' = evaluate p v
@@ -96,13 +109,18 @@ atoms s = case s of
     Prop name -> Set.fromList [name]
     Not p -> atoms p
     And p q -> both p q
+    Nand p q -> both p q
     Or p q -> both p q
+    Nor p q -> both p q
     If p q -> both p q
     Iff p q -> both p q
     Xor p q -> both p q
     where
     both p q = (atoms p) `Set.union` (atoms q)
 
+-- Rules of inference.
+
+-- | Substitute a sentence for a variable in another sentence.
 substitute :: Sentence -> String -> Sentence -> Either String Sentence
 substitute source target substitution =
     let 
@@ -114,11 +132,13 @@ substitute source target substitution =
                 then substitution
                 else src
             Not p -> Not $ subs p
-            And p q -> (subs p) ∧ (subs q)
-            Or p q -> (subs p) ∨ (subs q)
-            If p q -> (subs p) ⊃ (subs q)
-            Iff p q -> (subs p) ≡ (subs q)
-            Xor p q -> (subs p) ⊕ (subs q)
+            And p q -> And (subs p) (subs q)
+            Nand p q -> Nand (subs p) (subs q)
+            Or p q -> Or (subs p) (subs q)
+            Nor p q -> Nor (subs p) (subs q)
+            If p q -> If (subs p) (subs q)
+            Iff p q -> Iff (subs p) (subs q)
+            Xor p q -> Xor (subs p) (subs q)
     in
     if Set.null overlap
         then Right $ subs source
@@ -128,7 +148,6 @@ substitute source target substitution =
 modusPonens :: Sentence -> Sentence -> Maybe Sentence
 modusPonens conditional antecedent = case conditional of
     If p q -> if (p == antecedent) then Just q else Nothing
-    Or p q -> if (neg antecedent == p) then Just q else Nothing
     _ -> Nothing
 
 -- | Infer the antecedant of a conditional from the denial of the consequent.
@@ -136,8 +155,6 @@ modusTollens :: Sentence -> Sentence -> Maybe Sentence
 modusTollens conditional consequent = case conditional of
     If (Not p) (Not q) -> if (q == consequent) then Just p else Nothing
     If p q -> if (q == neg consequent) then Just $ neg p else Nothing
-    Or (Not p) q -> if (q == neg consequent) then Just p else Nothing
-    Or p (Not q) -> if (q == consequent) then Just p else Nothing
     _ -> Nothing
 
 -- | Infer either side of a disjunction from the negation of either of its arguments.
@@ -162,14 +179,19 @@ addition p q = p ∨ q
 adjunction :: Sentence -> Sentence -> Sentence
 adjunction p q = p ∧ q
 
+-- Transformations
+
 -- | Negates a sentence by flipping the outermost connective where it can.
 invert :: Sentence -> Sentence
 invert s = case s of
     Prop _ -> Not s
     Const b -> Const $ not b
     Not p -> p
-    Or p q -> And (neg p) (neg q)
     And p q -> Or (neg p) (neg q)
-    If p q -> And p (neg q) -- do we need a Because?
+    Nand p q -> And p q
+    Or p q -> And (neg p) (neg q)
+    Nor p q -> Or p q
+    -- Ifs are not changed due to the way we will want to apply rules of inference.
+    If _ _ -> Not $ s
     Iff p q -> Xor p q
     Xor p q -> Iff p q
