@@ -5,7 +5,7 @@ version           : 0.3.0.0
 synopsis          : Fun with formal logic.
 description       : A DSL for formulating, deriving, and evaluating logical expressions.
 homepage          : https://github.com/wafna/oxyllogism
-bug-reports       : https://github.com/wafna/oxyllogism
+bug-reports       : https://github.com/wafna/oxyllogism/issues
 license           : MIT
 license-file      : LICENSE
 author            : wafna
