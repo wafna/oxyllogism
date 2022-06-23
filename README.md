@@ -51,7 +51,7 @@ derive (neg r) $ do
     i2 <- pr p
     i3 <- pr q
     i4 <- mp i1 i2 $ q ⊃ (neg r)
-    i5 <- mp i4 i3 (neg r)
+    i5 <- mp i4 i3 $ neg r
     qed i5
 ```
 
