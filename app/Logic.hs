@@ -20,11 +20,17 @@ data Sentence
 neg :: Sentence -> Sentence
 neg = Not
 
+(¬) :: Sentence -> Sentence
 (¬) = Not
+(∧) :: Sentence -> Sentence -> Sentence
 (∧) = And
+(∨) :: Sentence -> Sentence -> Sentence
 (∨) = Or
+(⊃) :: Sentence -> Sentence -> Sentence
 (⊃) = If
+(≡) :: Sentence -> Sentence -> Sentence
 (≡) = Iff
+(≢) :: Sentence -> Sentence -> Sentence
 (≢) = Xor
 
 -- Analagous to arithmetic.
@@ -74,11 +80,11 @@ substitute source target substitution =
     let 
         -- It's ok if the target is part of the substitution.
         overlap = (Set.delete target $ atoms source) `Set.intersection` (atoms substitution)
-        subs source = case source of
+        subs src = case src of
             c@(Const _) -> c
             Prop name -> if name == target
                 then substitution
-                else source
+                else src
             Not p -> Not $ subs p
             And p q -> (subs p) ∧ (subs q)
             Or p q -> (subs p) ∨ (subs q)
@@ -109,6 +115,7 @@ modusTollensPonens disjunction denial = case denial of
     Not p -> case disjunction of
         Or x y -> if (p == x) then Just y else if (p == y) then Just x else Nothing
         _ -> Nothing
+    _ -> Nothing
 
 
 addition :: Sentence -> Sentence -> Sentence
@@ -124,8 +131,9 @@ adjunction p q = p ∧ q
 
 invert :: Sentence -> Sentence
 invert s = case s of
-    Not p -> p
+    p@(Prop _) -> Not p
     Const b -> Const $ not b
+    Not p -> p
     Or p q -> And (neg p) (neg q)
     And p q -> Or (neg p) (neg q)
     If p q -> And p (neg q)
