@@ -23,7 +23,7 @@ showBool b = if b then "T" else "F"
 showValuation :: Valuation -> String
 showValuation v = intercalate ", " (map showAssignment $ Map.toList v)
     where
-    showAssignment (n, v') = n ++ " = " ++ showBool v'  
+    showAssignment (n, v') = concat [n, " = ", showBool v']
 
 evaluateSpec :: Spec
 evaluateSpec = 
@@ -64,7 +64,7 @@ evaluateSpec =
             eval True $ valuation [(propName p, False), (propName q, True)]
             eval False $ valuation [(propName p, True), (propName q, True)]
     where
-    evaluate1 s e v = it (show s ++ " is " ++ showBool e ++ showWhere) $ e == evaluate s v
+    evaluate1 s e v = it (concat [show s, " is ", showBool e, showWhere]) $ e == evaluate s v
         where
         showWhere = if Map.null v then "" else " when " ++ showValuation v
 
@@ -88,9 +88,9 @@ substitutionSpec =
         success (p ∧ (neg q)) (propName q) (q ⊃ r) (p ∧ (neg (q ⊃ r)))
         failure (p ∧ (neg q)) (propName q) p
     where
-    success src target sub res = it ("sub " ++ show sub ++ " for " ++ target ++ " in " ++ show src ++ " yields " ++ show res) $ 
+    success src target sub res = it (concat ["sub ", show sub, " for ", target, " in ", show src, " yields ", show res]) $ 
         Either.either (const False) ((==) res) $ substitute src target sub
-    failure src target sub = it ("sub " ++ show sub ++ " for " ++ target ++ " in " ++ show src ++ " fails.") $
+    failure src target sub = it (concat ["sub ", show sub, " for ", target, " in ", show src, " fails."]) $
         Either.isLeft $ substitute src target sub
 
 transformationsSpec :: Spec
