@@ -37,3 +37,8 @@ Or, use the `Makefile` to stack commands:
 ## Using
 
 Modify `src/main/Main.hs`, then `make run`.
+
+### Derivations
+
+The system of derivation used here requires you to provide the expected result from the application of a rule except, of course, for the introduction of premises.
+This is for pedagogical purposes.

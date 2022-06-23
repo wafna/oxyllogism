@@ -1,5 +1,4 @@
 -- | Construct, transform, and derive sentences (formulae) in formal logic.
-
 module Logic where 
 
 import Data.Map (Map)
@@ -107,11 +106,11 @@ valuation vs = Map.fromList vs
 
 -- | Given a list of names, produce all distinct permutations of truth value assignments to those names
 valueSet :: [String] -> [[(String, Bool)]]
-valueSet names = map (zip names) $ comb (length names) [True, False]
+valueSet names = map (zip names) $ combos (length names) [True, False]
     where
-    comb :: Int -> [a] -> [[a]]
-    comb 0 _ = [[]]
-    comb n r = [i:s | i <- r, s <- comb (n-1) r]
+    combos n r = case n of 
+        0 -> [[]]
+        _ -> [i:s | i <- r, s <- combos (n-1) r]
 
 
 -- | Evaluate a sentence with a given valuation of its atoms.
@@ -193,8 +192,8 @@ modusTollens conditional consequent = case conditional of
     _ -> Nothing
 
 -- | Infer either side of a disjunction from the negation of either of its arguments.
-modusTollensPonens :: Sentence -> Sentence -> Maybe Sentence
-modusTollensPonens disjunction denial = case denial of
+modusTollendoPonens :: Sentence -> Sentence -> Maybe Sentence
+modusTollendoPonens disjunction denial = case denial of
     Not p -> case disjunction of
         Or x y -> if (p == x) then Just y else if (p == y) then Just x else Nothing
         _ -> Nothing
@@ -236,3 +235,4 @@ invert s = case s of
     If _ _ -> Not $ s
     Iff p q -> Xor p q
     Xor p q -> Iff p q
+
