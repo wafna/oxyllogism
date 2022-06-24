@@ -140,7 +140,7 @@ adj p q r = do
     y <- nthStep q
     checkResult r (adjunction  (stepResult x) (stepResult y)) (Adjunction p q)
 
--- | Disjoin any proposition, return the step number.
+-- | Disjoin any proposition to a step, return the step number.
 add :: Int -> Sentence -> Sentence -> Derivator Int
 add p q r = do
     x <- nthStep p
