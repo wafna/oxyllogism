@@ -43,12 +43,15 @@ derive :: Sentence -> Derivator () -> Either String Derivation
 derive goal action = fmap snd $ runIdentity $ runExceptT $ runStateT action $ Derivation goal []
 
 nthStep :: Int -> Derivator Step
-nthStep nth = gets $ \ d -> (reverse $ derivationSteps d) !! nth
+nthStep nth = gets $ \ d -> (reverse $ derivationSteps d) !! (nth - 1)
 
 addStep :: Rule -> Sentence -> Derivator Int
 addStep rule result = do
     modify $ \ d -> d { derivationSteps = (Step rule result) : derivationSteps d }
-    gets $ \ (Derivation _ steps) -> length steps - 1
+    currentStep
+
+currentStep :: Derivator Int
+currentStep = gets $ \ (Derivation _ steps) -> length steps
 
 -- | asserts that the result of the given step satisfies the goal of the derivation.
 qed :: Int -> Derivator ()
@@ -68,7 +71,9 @@ checkResult expected actual rule =
 checkMaybeResult :: Sentence -> Maybe Sentence -> Rule -> Derivator Int
 checkMaybeResult expected actual rule = 
     case actual of
-        Nothing -> throwError $ concat ["Invalid application of ", showRule rule, ": expected ", show expected, ", got ", show actual]
+        Nothing -> 
+            currentStep >>= \ step -> 
+                throwError $ concat ["Invalid application on step ", show $ 1 + step, ": expected ", show expected]
         Just u -> checkResult expected u rule
 
 -- Rules

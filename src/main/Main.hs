@@ -58,12 +58,13 @@ main =
         i7 <- mt i6 i3 $ (neg (neg q))
         i8 <- dnr i7 q
         qed i8
+    hr
     -- lots of problems with this one.
-    printDerivation $ derive (p ⊃ neg p) $
+    printDerivation $ derive r $
         do
         i1 <- pr p
         i2 <- pr q
-        i3 <- mp 1 2 $ r
+        i3 <- mp i1 i2 $ r
         qed i3
 
 printDerivation :: Either String Derivation -> IO ()
