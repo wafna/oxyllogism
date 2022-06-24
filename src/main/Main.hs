@@ -1,5 +1,5 @@
 -- | Sandbox for logic.
-module Main where
+module Main (main) where
 
 import qualified Data.Map as Map
 
