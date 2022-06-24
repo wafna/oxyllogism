@@ -40,7 +40,7 @@ type Derivator a = StateT Derivation (ExceptT String Identity) a
 
 -- | Starting with a goal, provide a series of steps to achieve the goal.
 derive :: Sentence -> Derivator () -> Either String Derivation
-derive goal actor = fmap snd $ runIdentity $ runExceptT $ runStateT actor $ Derivation goal []
+derive goal action = fmap snd $ runIdentity $ runExceptT $ runStateT action $ Derivation goal []
 
 nthStep :: Int -> Derivator Step
 nthStep nth = gets $ \ d -> (reverse $ derivationSteps d) !! nth
