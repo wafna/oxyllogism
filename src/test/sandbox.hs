@@ -32,3 +32,4 @@ main = do
   print $ runIdentity . runExceptStateT 3 $ test1
   print $ runIdentity . runStateExceptT 3 $ test2
   print $ runIdentity . runExceptStateT 3 $ test2
+  print $ fmap snd $ runIdentity . runExceptStateT 3 $ test2
