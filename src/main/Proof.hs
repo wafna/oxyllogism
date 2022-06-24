@@ -154,7 +154,8 @@ spacedWords ws = List.intercalate " " ws
 
 -- | Pretty it up.
 showDerivation :: Derivation -> String
-showDerivation d = List.intercalate "\n" $ map (\ (nth, Step rule result) -> concat [show nth, ".  ", showRule rule, show result]) $ zip [(1::Int)..] $ reverse $ derivationSteps d
+showDerivation d = List.intercalate "\n" $ map (\ (nth, Step rule result) -> 
+    concat [show nth, ".  ", showRule rule, show result]) $ zip [(1::Int)..] $ reverse $ derivationSteps d
 
 showRule :: Rule -> String
 showRule rule = case rule of
