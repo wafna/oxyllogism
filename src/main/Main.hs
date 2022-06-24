@@ -38,7 +38,7 @@ main =
 
     putStrLn "Derivation..."
     hr
-    putStrLn $ showDerivation $ derive (neg r) $ 
+    printDerivation $ derive (neg r) $ 
         do
         i1 <- pr $ p ⊃ (q ⊃ (neg r))
         i2 <- pr p
@@ -47,7 +47,7 @@ main =
         i5 <- mp i4 i3 $ neg r
         qed i5
     hr
-    putStrLn $ showDerivation $ derive q $
+    printDerivation $ derive q $
         do
         i1 <- pr $ p ⊃ ((neg q) ⊃ r)
         i2 <- pr $ neg p ⊃ r
@@ -58,3 +58,8 @@ main =
         i7 <- mt i6 i3 $ (neg (neg q))
         i8 <- dnr i7 q
         qed i8
+
+printDerivation :: Either String Derivation -> IO ()
+printDerivation r = case r of
+    Right d -> putStrLn $ showDerivation d
+    Left e -> putStrLn $ concat ["ERROR: ", e]

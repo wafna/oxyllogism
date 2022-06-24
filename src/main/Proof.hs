@@ -5,7 +5,9 @@ module Proof (
 ) where
 
 import qualified Data.List as List
+import Data.Functor.Identity
 import Control.Monad.State
+import Control.Monad.Except
 
 import Logic
 
@@ -32,43 +34,13 @@ data Step = Step { stepRule :: Rule, stepResult :: Sentence }
 data Derivation = Derivation { derivationGoal :: Sentence, derivationSteps :: [Step] }
     deriving (Show)
 
-spacedWords :: [String] -> String
-spacedWords ws = List.intercalate " " ws
-
--- | Pretty it up.
-showDerivation :: Derivation -> String
-showDerivation d = List.intercalate "\n" $ map (\ (nth, Step rule result) -> concat [show nth, ".  ", showRule rule, show result]) $ zip [(1::Int)..] $ reverse $ derivationSteps d
-
-showRule :: Rule -> String
-showRule rule = case rule of
-    Premise _ -> pad 20 "pr"
-    DoubleNegApply p -> pad 20 $ spacedWords [pad 8 "dn(a)", show (1 + p)]
-    DoubleNegRemove p -> pad 20 $ spacedWords [pad 8 "dn(r)", show (1 + p)]
-    SimplifyLeft p q -> pad 20 $ spacedWords [pad 8 "s(l)", show (1 + p), show (1 + q)]
-    SimplifyRight p q -> pad 20 $ spacedWords [pad 8 "s(r)", show (1 + p), show (1 + q)]
-    ModusPonens p q -> pad 20 $ spacedWords [pad 8 "mp", show (1 + p), show (1 + q)]
-    ModusTollens p q -> pad 20 $ spacedWords [pad 8 "mt", show (1 + p), show (1 + q)]
-    ModusTollendoPonensLeft p q -> pad 20 $ spacedWords [pad 8 "mtp(l)", show (1 + p), show (1 + q)]
-    ModusTollendoPonensRight p q -> pad 20 $ spacedWords [pad 8 "mtp(r)", show (1 + p), show (1 + q)]
-    Adjunction p q -> pad 20 $ spacedWords [pad 8 "adj", show (1 + p), show (1 + q)]
-    Addition p q -> pad 20 $ spacedWords [pad 8 "mtp(l)", show (1 + p), show q]
-
-pad :: Int -> String -> String
-pad n s = 
-    let len = length s in
-    if (len < n) 
-        then s ++ concat (take (n - len) $ repeat " ") 
-        else s
-
 -- Derivation state monad.
-type Derivator = State Derivation
+-- type Derivator = State Derivation
+type Derivator a = StateT Derivation (ExceptT String Identity) a
 
 -- | Starting with a goal, provide a series of steps to achieve the goal.
-derive :: Sentence -> Derivator () -> Derivation
-derive goal actor = execState actor $ Derivation goal [] 
-
-currentStep :: Derivator Int
-currentStep = gets $ \ (Derivation _ steps) -> length steps - 1
+derive :: Sentence -> Derivator () -> Either String Derivation
+derive goal actor = fmap snd $ runIdentity $ runExceptT $ runStateT actor $ Derivation goal []
 
 nthStep :: Int -> Derivator Step
 nthStep nth = gets $ \ d -> (reverse $ derivationSteps d) !! nth
@@ -76,7 +48,7 @@ nthStep nth = gets $ \ d -> (reverse $ derivationSteps d) !! nth
 addStep :: Rule -> Sentence -> Derivator Int
 addStep rule result = do
     modify $ \ d -> d { derivationSteps = (Step rule result) : derivationSteps d }
-    currentStep
+    gets $ \ (Derivation _ steps) -> length steps - 1
 
 -- | asserts that the result of the given step satisfies the goal of the derivation.
 qed :: Int -> Derivator ()
@@ -84,20 +56,22 @@ qed i = do
     r <- nthStep i
     g <- gets derivationGoal
     if stepResult r /= g
-        then error $ "Goal not reached: found " ++ show r ++ " need " ++ show g
+        then throwError $ concat ["Goal not reached: found ", show r, " need ", show g]
         else return ()
 
 checkResult :: Sentence -> Sentence -> Rule -> Derivator Int
 checkResult expected actual rule =
     if expected /= actual
-        then error $ concat ["Wrong result. Expected ", show expected, ", got ", show actual]
+        then throwError $ concat ["Wrong result. Expected ", show expected, ", got ", show actual]
         else addStep rule actual
 
 checkMaybeResult :: Sentence -> Maybe Sentence -> Rule -> Derivator Int
 checkMaybeResult expected actual rule = 
     case actual of
-        Nothing -> error $ concat ["Invalid application of ", showRule rule, ": expected ", show expected, ", got ", show actual]
+        Nothing -> throwError $ concat ["Invalid application of ", showRule rule, ": expected ", show expected, ", got ", show actual]
         Just u -> checkResult expected u rule
+
+-- Rules
 
 -- | Introduce a premise, return the step number.
 pr :: Sentence -> Derivator Int
@@ -167,3 +141,34 @@ add :: Int -> Sentence -> Sentence -> Derivator Int
 add p q r = do
     x <- nthStep p
     checkResult r (addition (stepResult x) q) (Addition p q)
+
+-- Display.
+
+spacedWords :: [String] -> String
+spacedWords ws = List.intercalate " " ws
+
+-- | Pretty it up.
+showDerivation :: Derivation -> String
+showDerivation d = List.intercalate "\n" $ map (\ (nth, Step rule result) -> concat [show nth, ".  ", showRule rule, show result]) $ zip [(1::Int)..] $ reverse $ derivationSteps d
+
+showRule :: Rule -> String
+showRule rule = case rule of
+    Premise _ -> pad 20 "pr"
+    DoubleNegApply p -> pad 20 $ spacedWords [pad 8 "dn(a)", show (1 + p)]
+    DoubleNegRemove p -> pad 20 $ spacedWords [pad 8 "dn(r)", show (1 + p)]
+    SimplifyLeft p q -> pad 20 $ spacedWords [pad 8 "s(l)", show (1 + p), show (1 + q)]
+    SimplifyRight p q -> pad 20 $ spacedWords [pad 8 "s(r)", show (1 + p), show (1 + q)]
+    ModusPonens p q -> pad 20 $ spacedWords [pad 8 "mp", show (1 + p), show (1 + q)]
+    ModusTollens p q -> pad 20 $ spacedWords [pad 8 "mt", show (1 + p), show (1 + q)]
+    ModusTollendoPonensLeft p q -> pad 20 $ spacedWords [pad 8 "mtp(l)", show (1 + p), show (1 + q)]
+    ModusTollendoPonensRight p q -> pad 20 $ spacedWords [pad 8 "mtp(r)", show (1 + p), show (1 + q)]
+    Adjunction p q -> pad 20 $ spacedWords [pad 8 "adj", show (1 + p), show (1 + q)]
+    Addition p q -> pad 20 $ spacedWords [pad 8 "mtp(l)", show (1 + p), show q]
+
+pad :: Int -> String -> String
+pad n s = 
+    let len = length s in
+    if (len < n) 
+        then s ++ concat (take (n - len) $ repeat " ") 
+        else s
+
