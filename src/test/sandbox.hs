@@ -41,7 +41,7 @@ f1 = fmap snd $ runIdentity (runExceptStateT 3 test2)
 type MyMonad a = StateT Int (ExceptT String Identity) a
 
 runMe :: Int -> MyMonad a -> Either String Int
-runMe s q = fmap snd $ runIdentity $ ((runExceptT (runStateT q s)))
+runMe s q = fmap snd $ runIdentity $ runExceptT (runStateT q s)
 
 doGood :: Int -> MyMonad ()
 doGood i = put i
