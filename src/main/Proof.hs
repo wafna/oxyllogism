@@ -34,8 +34,7 @@ data Step = Step { stepRule :: Rule, stepResult :: Sentence }
 data Derivation = Derivation { derivationGoal :: Sentence, derivationSteps :: [Step] }
     deriving (Show)
 
--- Derivation state monad.
--- type Derivator = State Derivation
+-- Derivation monad.
 type Derivator a = StateT Derivation (ExceptT String Identity) a
 
 -- | Starting with a goal, provide a series of steps to achieve the goal.
@@ -53,7 +52,7 @@ addStep rule result = do
 currentStep :: Derivator Int
 currentStep = gets $ \ (Derivation _ steps) -> length steps
 
--- | asserts that the result of the given step satisfies the goal of the derivation.
+-- | Asserts that the result of the given step satisfies the goal of the derivation.
 qed :: Int -> Derivator ()
 qed i = do
     r <- nthStep i
