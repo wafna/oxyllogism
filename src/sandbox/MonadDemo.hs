@@ -1,31 +1,35 @@
+{-# LANGUAGE FlexibleContexts #-}
 module Main (main) where
 
+-- Demonstrating the stacking of monads.
+-- https://stackoverflow.com/questions/31838776/whats-the-difference-between-statet-s-exceptt-e-m-and-exceptt-e-statet-s-m
+
+import Control.Applicative
 import Control.Monad.State
 import Control.Monad.Except
 import Data.Functor.Identity
 
--- https://stackoverflow.com/questions/31838776/whats-the-difference-between-statet-s-exceptt-e-m-and-exceptt-e-statet-s-m
+test1 :: (MonadState Int m, MonadError String m) => m Bool
+test1 = do
+  put 1
+  throwError "foobar"
+  put 2
+  return False
 
-type MyMonad a = StateT Int (ExceptT String Identity) a
+test2 :: (Alternative m, MonadState Int m, MonadError String m) => m Bool
+test2 = do
+  put 4
+  test1 <|> return True
 
-runMe :: Int -> MyMonad a -> Either String Int
-runMe s q = fmap snd $ runIdentity $ runExceptT $ runStateT q s
+runStateExceptT :: Monad m => s -> ExceptT e (StateT s m) a -> m (Either e a, s)
+runStateExceptT s = flip runStateT s . runExceptT
 
-doGood :: Int -> MyMonad Int
-doGood i = put i >> return i
-
-doBad :: String -> MyMonad ()
-doBad s = throwError s
-
-doSomething :: MyMonad Int
-doSomething = get
+runExceptStateT :: Monad m => s -> StateT s (ExceptT e m) a -> m (Either e (a, s))
+runExceptStateT s = runExceptT . flip runStateT s
 
 main :: IO ()
 main = do
-    print $ runMe 42 $ do
-        put 11
-    print $ runMe 86 $ do
-        throwError "biffed"
-    print $ runMe 99 (doGood 86)
-    print $ runMe 13 (doBad "wack")
-    print $ runMe 303 doSomething
+  print $ runIdentity . runStateExceptT 3 $ test1
+  print $ runIdentity . runExceptStateT 3 $ test1
+  print $ runIdentity . runStateExceptT 3 $ test2
+  print $ runIdentity . runExceptStateT 3 $ test2
