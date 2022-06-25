@@ -48,26 +48,26 @@ runMyMonadES initState action = liftIO $ runExceptT $ runStateT action initState
 
 -- Most general type signature.
 -- Works with either monad.
-myf1 :: (MonadState MyState m, MonadError MyError m, MonadIO m) => m String
-myf1 = do
+worksInBoth :: (MonadState MyState m, MonadError MyError m, MonadIO m) => m String
+worksInBoth = do
     get >>= liftIO . print
     return "Works in either monad."
 
-mySE_1 :: MyMonadSE String
-mySE_1 = do
+seOK :: MyMonadSE String
+seOK = do
     get >>= liftIO . print
-    return "F1!"
+    return "se ok"
 
-mySE_2 :: MyMonadSE ()
-mySE_2 = throwError "F3!"
+seBarf :: MyMonadSE ()
+seBarf = throwError "es error"
 
-myES_1 :: MyMonadES String
-myES_1 = do
+esOK :: MyMonadES String
+esOK = do
     get >>= liftIO . print
-    return "F1!"
+    return "es ok"
 
-myES_2 :: MyMonadES ()
-myES_2 = throwError "F3!"
+esBarf :: MyMonadES ()
+esBarf = throwError "es error"
 
 main :: IO ()
 main = do
@@ -82,9 +82,9 @@ main = do
             modify $ (+) 86)
         >>= print
     putStrLn "IO Monads..."
-    runMyMonadSE 42 myf1 >>= print
-    runMyMonadSE 42 mySE_1 >>= print
-    runMyMonadSE 42 mySE_2 >>= print
-    runMyMonadES 42 myf1 >>= print
-    runMyMonadES 42 myES_1 >>= print
-    runMyMonadES 42 myES_2 >>= print
+    runMyMonadSE 42 worksInBoth >>= print
+    runMyMonadSE 42 seOK >>= print
+    runMyMonadSE 42 seBarf >>= print
+    runMyMonadES 42 worksInBoth >>= print
+    runMyMonadES 42 esOK >>= print
+    runMyMonadES 42 esBarf >>= print
