@@ -13,6 +13,7 @@ main =
         p = Prop "p"
         q = Prop "q"
         r = Prop "r"
+        s = Prop "s"
 
         hr = putStrLn $ take 50 $ repeat '-'
     in
@@ -66,6 +67,22 @@ main =
         i2 <- pr q
         i3 <- mp i1 i2 $ r
         qed i3
+    hr
+    -- Conditional derivation.
+    printDerivation $ derive r $
+        do
+        -- Prior premises.
+        i1 <- pr $ p ⊃ q
+        i2 <- pr $ neg r ⊃ neg q
+        i3 <- pr $ s ⊃ p
+        -- Assumed antecedent of s ⊃ r
+        i4 <- pr $ s
+        i5 <- mp i3 i4 $ p
+        i6 <- mp i1 i5 $ q
+        i7 <- dna i6 $ neg $ neg q
+        i8 <- mt i2 i7 $ neg $ neg r
+        i9 <- dnr i8 $ r
+        qed i9
 
 printDerivation :: Either String Derivation -> IO ()
 printDerivation r = putStrLn $ case r of
