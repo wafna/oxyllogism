@@ -38,7 +38,6 @@ type MyError = String
 
 type MyMonadSE a = ExceptT MyError (StateT MyState IO) a
 
--- runMyMonadSE initState action = liftIO $ runExceptT $ runStateT action initState
 runMyMonadSE :: MyState -> MyMonadSE a -> IO (Either MyError a, MyState)
 runMyMonadSE initState action = liftIO $ runStateT (runExceptT action) initState
 
@@ -46,7 +45,6 @@ type MyMonadES a = StateT MyState (ExceptT MyError IO) a
 
 runMyMonadES :: MyState -> MyMonadES a -> IO (Either MyError (a, MyState))
 runMyMonadES initState action = liftIO $ runExceptT $ runStateT action initState
-
 
 -- Most general type signature.
 -- Works with either monad.
