@@ -51,9 +51,7 @@ myf2 = do
     return "F1!"
 
 myf3 :: MyMonad ()
-myf3 = do
-    _ <- throwError "F3!"
-    put 86
+myf3 = throwError "F3!"
 
 main :: IO ()
 main = do
@@ -63,10 +61,10 @@ main = do
     print $ runIdentity . runStateExceptT 3 $ test2
     print $ runIdentity . runExceptStateT 3 $ test2
     -- Some stuff with IO
-    foo <- runMyMonad 42 $ do
-        liftIO $ putStrLn "woohoo"
-        modify $ (+) 86
-    print foo
+    (runMyMonad 42 $ do
+            liftIO $ putStrLn "woohoo"
+            modify $ (+) 86)
+        >>= print
     runMyMonad 42 myf1 >>= print
     runMyMonad 42 myf2 >>= print    
     runMyMonad 42 myf3 >>= print    
