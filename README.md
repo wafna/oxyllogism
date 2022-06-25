@@ -22,21 +22,12 @@ Now, install some dependencies.
 
 If you get errors you may be missing some dependent libraries (see above).
 
-## Building
-
-Use `cabal` directly:
-
-    cabal build
-    cabal run
-
-Or, use the `Makefile` to stack commands:
-
-    make clean run
-    make clean test test-log
-
 ## Using
 
-Modify `src/main/Main.hs`, then `make run`.
+Either modify the Sandbox.hs file or define a new target in the cabal file.
+Run the sandbox as follows:
+
+    make sandbox
 
 ### Derivations
 

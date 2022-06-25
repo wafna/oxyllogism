@@ -68,6 +68,6 @@ main =
         qed i3
 
 printDerivation :: Either String Derivation -> IO ()
-printDerivation r = case r of
-    Right d -> putStrLn $ showDerivation d
-    Left e -> putStrLn $ concat ["ERROR: ", e]
+printDerivation r = putStrLn $ case r of
+    Right d -> showDerivation d
+    Left e -> concat ["ERROR: ", e]
