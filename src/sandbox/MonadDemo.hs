@@ -39,22 +39,24 @@ runMyMonad :: MyState -> MyMonad a -> IO (Either MyError (a, MyState))
 runMyMonad initState action = liftIO $ runExceptT $ runStateT action initState
 
 myf1 :: MyMonad String
-myf1 = return "F1!"
+myf1 = do
+    get >>= liftIO . print
+    return "F1!"
 
 -- Most general type signature.
 myf2 :: (MonadState MyState m, MonadError MyError m, MonadIO m) => m String
-myf2 = 
-    do
-    s <- get
-    liftIO $ print s
+myf2 = do
+    get >>= liftIO . print
     return "F2!"
 
 main :: IO ()
 main = do
+    -- These show the difference in the nesting of the monads.
     print $ runIdentity . runStateExceptT 3 $ test1
     print $ runIdentity . runExceptStateT 3 $ test1
     print $ runIdentity . runStateExceptT 3 $ test2
     print $ runIdentity . runExceptStateT 3 $ test2
+    -- Some stuff with IO
     foo <- runMyMonad 42 $ do
         liftIO $ putStrLn "woohoo"
         modify $ (+) 86
