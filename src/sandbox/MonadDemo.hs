@@ -33,21 +33,27 @@ runExceptStateT s = runExceptT . flip runStateT s
 
 type MyState = Int
 type MyError = String
-type MyMonad a = StateT MyState (ExceptT MyError IO) a
+type MyMonad a = ExceptT MyError (StateT MyState IO) a
 
-runMyMonad :: MyState -> MyMonad a -> IO (Either MyError (a, MyState))
-runMyMonad initState action = liftIO $ runExceptT $ runStateT action initState
+-- runMyMonad initState action = liftIO $ runExceptT $ runStateT action initState
+runMyMonad :: MyState -> MyMonad a -> IO (Either MyError a, MyState)
+runMyMonad initState action = liftIO $ runStateT (runExceptT action) initState
 
-myf1 :: MyMonad String
+-- Most general type signature.
+myf1 :: (MonadState MyState m, MonadError MyError m, MonadIO m) => m String
 myf1 = do
+    get >>= liftIO . print
+    return "F2!"
+
+myf2 :: MyMonad String
+myf2 = do
     get >>= liftIO . print
     return "F1!"
 
--- Most general type signature.
-myf2 :: (MonadState MyState m, MonadError MyError m, MonadIO m) => m String
-myf2 = do
-    get >>= liftIO . print
-    return "F2!"
+myf3 :: MyMonad ()
+myf3 = do
+    _ <- throwError "F3!"
+    put 86
 
 main :: IO ()
 main = do
@@ -63,3 +69,4 @@ main = do
     print foo
     runMyMonad 42 myf1 >>= print
     runMyMonad 42 myf2 >>= print    
+    runMyMonad 42 myf3 >>= print    
