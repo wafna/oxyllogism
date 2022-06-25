@@ -83,8 +83,8 @@ main = do
         >>= print
     putStrLn "IO Monads..."
     runMyMonadSE 42 myf1 >>= print
-    runMyMonadSE 42 mySE_1 >>= print    
-    runMyMonadSE 42 mySE_2 >>= print    
-    runMyMonadES 42 myf1 >>= print    
-    runMyMonadES 42 myES_1 >>= print    
-    runMyMonadES 42 myES_2 >>= print    
+    runMyMonadSE 42 mySE_1 >>= print
+    runMyMonadSE 42 mySE_2 >>= print
+    runMyMonadES 42 myf1 >>= print
+    runMyMonadES 42 myES_1 >>= print
+    runMyMonadES 42 myES_2 >>= print

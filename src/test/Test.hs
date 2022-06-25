@@ -6,7 +6,7 @@ import Data.List (intercalate)
 import Test.Hspec
 import Logic
 
-p :: Sentence    
+p :: Sentence
 p = Prop "p"
 q :: Sentence
 q = Prop "q"
@@ -22,7 +22,7 @@ showValuation v = intercalate ", " (map showAssignment $ Map.toList v)
     showAssignment (n, v') = concat [n, " = ", showBool v']
 
 evaluateSpec :: Spec
-evaluateSpec = 
+evaluateSpec =
     describe "evaluate" $ do
         describe "const" $ do
             evaluate1 true True $ valuation []
@@ -30,43 +30,43 @@ evaluateSpec =
             evaluate1 false False $ valuation []
             evaluate1 (neg false) True $ valuation []
         describe "∧" $ do
-            eval <- return $ evaluate1 (p ∧ q) 
+            eval <- return $ evaluate1 (p ∧ q)
             eval False $ valuation [(propName p, False), (propName q, False)]
             eval False $ valuation [(propName p, True), (propName q, False)]
             eval False $ valuation [(propName p, False), (propName q, True)]
             eval True $ valuation [(propName p, True), (propName q, True)]
         describe "↑" $ do
-            eval <- return $ evaluate1 (p ↑ q) 
+            eval <- return $ evaluate1 (p ↑ q)
             eval True $ valuation [(propName p, False), (propName q, False)]
             eval True $ valuation [(propName p, True), (propName q, False)]
             eval True $ valuation [(propName p, False), (propName q, True)]
             eval False $ valuation [(propName p, True), (propName q, True)]
         describe "∨" $ do
-            eval <- return $ evaluate1 (p ∨ q) 
+            eval <- return $ evaluate1 (p ∨ q)
             eval False $ valuation [(propName p, False), (propName q, False)]
             eval True $ valuation [(propName p, True), (propName q, False)]
             eval True $ valuation [(propName p, False), (propName q, True)]
             eval True $ valuation [(propName p, True), (propName q, True)]
         describe "↓" $ do
-            eval <- return $ evaluate1 (p ↓ q) 
+            eval <- return $ evaluate1 (p ↓ q)
             eval True $ valuation [(propName p, False), (propName q, False)]
             eval False $ valuation [(propName p, True), (propName q, False)]
             eval False $ valuation [(propName p, False), (propName q, True)]
             eval False $ valuation [(propName p, True), (propName q, True)]
         describe "⊃" $ do
-            eval <- return $ evaluate1 (p ⊃ q) 
+            eval <- return $ evaluate1 (p ⊃ q)
             eval True $ valuation [(propName p, False), (propName q, False)]
             eval False $ valuation [(propName p, True), (propName q, False)]
             eval True $ valuation [(propName p, False), (propName q, True)]
             eval True $ valuation [(propName p, True), (propName q, True)]
         describe "≡" $ do
-            eval <- return $ evaluate1 (p ≡ q) 
+            eval <- return $ evaluate1 (p ≡ q)
             eval True $ valuation [(propName p, False), (propName q, False)]
             eval False $ valuation [(propName p, True), (propName q, False)]
             eval False $ valuation [(propName p, False), (propName q, True)]
             eval True $ valuation [(propName p, True), (propName q, True)]
         describe "⊕" $ do
-            eval <- return $ evaluate1 (p ⊕ q) 
+            eval <- return $ evaluate1 (p ⊕ q)
             eval False $ valuation [(propName p, False), (propName q, False)]
             eval True $ valuation [(propName p, True), (propName q, False)]
             eval True $ valuation [(propName p, False), (propName q, True)]
@@ -77,7 +77,7 @@ evaluateSpec =
         showWhere = if Map.null v then "" else " when " ++ showValuation v
 
 axiomsSpec :: Spec
-axiomsSpec = 
+axiomsSpec =
     describe "axioms" $ do
         pq <- return $ valueSet [propName p, propName q]
         pqr <- return $ valueSet [propName p, propName q, propName r]
@@ -90,13 +90,13 @@ axiomsSpec =
     evaluate1 s e v = it (showValuation v) $ e == evaluate s v
 
 substitutionSpec :: Spec
-substitutionSpec = 
+substitutionSpec =
     describe "substitutions" $ do
         success (p ∧ (neg q)) (propName q) r (p ∧ (neg r))
         success (p ∧ (neg q)) (propName q) (q ⊃ r) (p ∧ (neg (q ⊃ r)))
         failure (p ∧ (neg q)) (propName q) p
     where
-    success src target sub res = it (concat ["sub ", show sub, " for ", target, " in ", show src, " yields ", show res]) $ 
+    success src target sub res = it (concat ["sub ", show sub, " for ", target, " in ", show src, " yields ", show res]) $
         Either.either (const False) ((==) res) $ substitute src target sub
     failure src target sub = it (concat ["sub ", show sub, " for ", target, " in ", show src, " fails."]) $
         Either.isLeft $ substitute src target sub

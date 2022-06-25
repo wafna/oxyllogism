@@ -68,10 +68,10 @@ checkResult expected actual rule =
         else addStep rule actual
 
 checkMaybeResult :: Sentence -> Maybe Sentence -> Rule -> Derivator Int
-checkMaybeResult expected actual rule = 
+checkMaybeResult expected actual rule =
     case actual of
-        Nothing -> 
-            currentStep >>= \ step -> 
+        Nothing ->
+            currentStep >>= \ step ->
                 throwError $ concat ["Invalid application on step ", show $ 1 + step, ": expected ", show expected]
         Just u -> checkResult expected u rule
 
@@ -83,7 +83,7 @@ pr s = addStep (Premise s) s
 
 -- | Apply double negation, return the step number.
 dna :: Int -> Sentence -> Derivator Int
-dna p r = nthStep p >>= \x -> checkResult r (neg $ neg $ stepResult x) (DoubleNegApply p) 
+dna p r = nthStep p >>= \x -> checkResult r (neg $ neg $ stepResult x) (DoubleNegApply p)
 
 -- | Remove double negation, return the step number.
 dnr :: Int -> Sentence -> Derivator Int
@@ -153,7 +153,7 @@ spacedWords ws = List.intercalate " " ws
 
 -- | Pretty it up.
 showDerivation :: Derivation -> String
-showDerivation d = List.intercalate "\n" $ map (\ (nth, Step rule result) -> 
+showDerivation d = List.intercalate "\n" $ map (\ (nth, Step rule result) ->
     concat [show nth, ".  ", showRule rule, show result]) $ zip [(1::Int)..] $ reverse $ derivationSteps d
 
 showRule :: Rule -> String
@@ -171,9 +171,9 @@ showRule rule = case rule of
     Addition p q -> pad 20 $ spacedWords [pad 8 "mtp(l)", show p, show q]
 
 pad :: Int -> String -> String
-pad n s = 
+pad n s =
     let len = length s in
-    if (len < n) 
-        then s ++ concat (take (n - len) $ repeat " ") 
+    if (len < n)
+        then s ++ concat (take (n - len) $ repeat " ")
         else s
 

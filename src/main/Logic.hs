@@ -1,5 +1,5 @@
 -- | Construct, transform, and derive sentences (formulae) in formal logic.
-module Logic where 
+module Logic where
 
 import Data.Map (Map)
 import qualified Data.Map as Map
@@ -7,7 +7,7 @@ import Data.Set (Set)
 import qualified Data.Set as Set
 
 -- | Structure of sentences in propositional logic.
-data Sentence 
+data Sentence
     = Const Bool
     | Prop { propName :: String }
     | Not Sentence
@@ -22,7 +22,7 @@ data Sentence
 
 -- | Pretty it up.
 instance Show Sentence where
-    show s = case s of 
+    show s = case s of
         Const b -> if b then "t" else "f"
         Prop n -> n
         Not p -> "¬" ++ show p
@@ -108,7 +108,7 @@ valuation vs = Map.fromList vs
 valueSet :: [String] -> [[(String, Bool)]]
 valueSet names = map (zip names) $ combos (length names) [True, False]
     where
-    combos n r = case n of 
+    combos n r = case n of
         0 -> [[]]
         _ -> [i:s | i <- r, s <- combos (n-1) r]
 
@@ -125,12 +125,12 @@ evaluate s v = case s of
     Or p q -> (evaluate p v) || (evaluate q v)
     Nor p q -> not $ (evaluate p v) || (evaluate q v)
     If p q -> (not $ evaluate p v) || (evaluate q v)
-    Iff p q -> 
+    Iff p q ->
         let p' = evaluate p v
             q' = evaluate q v
         in
         (p' && q') || (not p' && not q')
-    Xor p q -> 
+    Xor p q ->
         let p' = evaluate p v
             q' = evaluate q v
         in
@@ -157,7 +157,7 @@ atoms s = case s of
 -- | Substitute a sentence for a variable in another sentence.
 substitute :: Sentence -> String -> Sentence -> Either String Sentence
 substitute source target substitution =
-    let 
+    let
         -- It's ok if the target is part of the substitution.
         overlap = (Set.delete target $ atoms source) `Set.intersection` (atoms substitution)
         subs src = case src of
@@ -187,8 +187,8 @@ modusPonens conditional antecedent = case conditional of
 -- | Infer the antecedant of a conditional from the denial of the consequent.
 modusTollens :: Sentence -> Sentence -> Maybe Sentence
 modusTollens conditional consequent = case conditional of
-    If p q -> if (q == neg consequent) || (neg q == consequent) 
-        then Just $ neg p 
+    If p q -> if (q == neg consequent) || (neg q == consequent)
+        then Just $ neg p
         else Nothing
     _ -> Nothing
 
@@ -206,13 +206,13 @@ modusTollendoPonensRight disjunction denial = case disjunction of
 
 -- | Infer the right side of a disjunction from the left side.
 simplifyLeft :: Sentence -> Sentence -> Maybe Sentence
-simplifyLeft s element = case s of 
+simplifyLeft s element = case s of
     Or p q -> if (p == element) then Just q else Nothing
     _ -> Nothing
 
 -- | Infer the left side of a disjunction from the right side.
 simplifyRight :: Sentence -> Sentence -> Maybe Sentence
-simplifyRight s element = case s of 
+simplifyRight s element = case s of
     Or p q -> if (q == element) then Just p else Nothing
     _ -> Nothing
 
@@ -226,7 +226,7 @@ adjunction p q = And p q
 
 -- | Infer a sentence from its double negation.
 doubleNegation :: Sentence -> Maybe Sentence
-doubleNegation p = case p of 
+doubleNegation p = case p of
     Not (Not q) -> Just q
     _ -> Nothing
 

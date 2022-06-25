@@ -8,7 +8,7 @@ import Proof
 
 -- | Have at it...
 main :: IO ()
-main = 
+main =
     let
         p = Prop "p"
         q = Prop "q"
@@ -32,14 +32,14 @@ main =
 
     putStrLn "Modus ponens..."
     putStrLn $ show $ modusPonens (p ⊃ q) p
-    putStrLn $ show $ modusPonens (x1 ⊃ x2) x1 
+    putStrLn $ show $ modusPonens (x1 ⊃ x2) x1
     putStrLn $ show $ modusPonens (x2 ⊃ x1) x1
     -- If you use the negation operator you must section it.
     putStrLn $ show $ modusPonens ((¬)x2 ∨ q) x2
 
     putStrLn "Derivation..."
     hr
-    printDerivation $ derive (neg r) $ 
+    printDerivation $ derive (neg r) $
         do
         i1 <- pr $ p ⊃ (q ⊃ (neg r))
         i2 <- pr p
