@@ -159,16 +159,16 @@ showDerivation d = List.intercalate "\n" $ map (\ (nth, Step rule result) ->
 showRule :: Rule -> String
 showRule rule = case rule of
     Premise _ -> pad 20 "pr"
-    DoubleNegApply p -> pad 20 $ spacedWords [pad 8 "dn(a)", show (1 + p)]
-    DoubleNegRemove p -> pad 20 $ spacedWords [pad 8 "dn(r)", show (1 + p)]
-    SimplifyLeft p q -> pad 20 $ spacedWords [pad 8 "s(l)", show (1 + p), show (1 + q)]
-    SimplifyRight p q -> pad 20 $ spacedWords [pad 8 "s(r)", show (1 + p), show (1 + q)]
-    ModusPonens p q -> pad 20 $ spacedWords [pad 8 "mp", show (1 + p), show (1 + q)]
-    ModusTollens p q -> pad 20 $ spacedWords [pad 8 "mt", show (1 + p), show (1 + q)]
-    ModusTollendoPonensLeft p q -> pad 20 $ spacedWords [pad 8 "mtp(l)", show (1 + p), show (1 + q)]
-    ModusTollendoPonensRight p q -> pad 20 $ spacedWords [pad 8 "mtp(r)", show (1 + p), show (1 + q)]
-    Adjunction p q -> pad 20 $ spacedWords [pad 8 "adj", show (1 + p), show (1 + q)]
-    Addition p q -> pad 20 $ spacedWords [pad 8 "mtp(l)", show (1 + p), show q]
+    DoubleNegApply p -> pad 20 $ spacedWords [pad 8 "dn(a)", show p]
+    DoubleNegRemove p -> pad 20 $ spacedWords [pad 8 "dn(r)", show p]
+    SimplifyLeft p q -> pad 20 $ spacedWords [pad 8 "s(l)", show p, show q]
+    SimplifyRight p q -> pad 20 $ spacedWords [pad 8 "s(r)", show p, show q]
+    ModusPonens p q -> pad 20 $ spacedWords [pad 8 "mp", show p, show q]
+    ModusTollens p q -> pad 20 $ spacedWords [pad 8 "mt", show p, show q]
+    ModusTollendoPonensLeft p q -> pad 20 $ spacedWords [pad 8 "mtp(l)", show p, show q]
+    ModusTollendoPonensRight p q -> pad 20 $ spacedWords [pad 8 "mtp(r)", show p, show q]
+    Adjunction p q -> pad 20 $ spacedWords [pad 8 "adj", show p, show q]
+    Addition p q -> pad 20 $ spacedWords [pad 8 "mtp(l)", show p, show q]
 
 pad :: Int -> String -> String
 pad n s = 
