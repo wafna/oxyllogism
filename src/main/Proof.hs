@@ -149,7 +149,7 @@ add p q r = do
 -- Display.
 
 spacedWords :: [String] -> String
-spacedWords ws = List.intercalate " " ws
+spacedWords = List.intercalate " "
 
 -- | Pretty it up.
 showDerivation :: Derivation -> String
